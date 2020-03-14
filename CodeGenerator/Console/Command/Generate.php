@@ -176,7 +176,7 @@ class Generate extends Command
                 $columnBackendAnswer = $helper->ask($input, $output, $columnBackend);
                 $column['backend_type'] = $columnBackendAnswer;
 
-                $columnBackendLabel = new Question('Define <fg=green>backend label</>', 'Label');
+                $columnBackendLabel = new Question('Define <fg=green>backend label</>' . PHP_EOL, 'Label');
                 $columnBackendLabelAnswer = $helper->ask($input, $output, $columnBackendLabel);
                 $column['backend_label'] = $columnBackendLabelAnswer;
                 array_push($columns, $column);
@@ -196,12 +196,22 @@ class Generate extends Command
 
     public function createApiAndModelFiles($input, $output, $module, $dbInfo)
     {
+        $vendorNamespaceArr = explode('_', $module);
         $dbColumns = $dbInfo['columns'];
         $dbName = $dbInfo['db_name'];
         $helper = $this->questionHelper();
         $installDb = new Question('Define the name of <fg=green>your entity</>? (Example: MyNewEntity): ' . PHP_EOL, 'DemoEntity');
         $entityName = $helper->ask($input, $output, $installDb);
         $resp = $this->apiAndModelStructure->generateApiAndModelFiles($module, $dbColumns, $entityName, $dbName);
+        if ($resp['success']) {
+            $output->writeln('<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Model/' . $entityName . '/' . $entityName . '.php');
+            $output->writeln('<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Model/' . $entityName . '/' . $entityName . 'Repository.php');
+            $output->writeln('<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Model/' . $entityName . '/' . 'ResourceModel' . '/' . $entityName . '.php');
+            $output->writeln('<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Model/' . $entityName . '/' . 'ResourceModel' . '/' . $entityName . '/' . 'Collection.php');
+            $output->writeln('<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Model/' . $entityName . '/' . 'ResourceModel' . '/' . $entityName . '/' . 'Grid' . '/' . 'Collection.php');
+        } else {
+            $output->writeln($resp['message']);
+        }
         $output->writeln(print_r($resp));
     }
 

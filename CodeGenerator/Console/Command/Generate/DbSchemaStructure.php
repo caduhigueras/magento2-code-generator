@@ -107,6 +107,7 @@ class DbSchemaStructure
             $contents .= '    <!-- reference:  https://devdocs.magento.com/guides/v2.3/extension-dev-guide/declarative-schema/db-schema.html-->' . PHP_EOL;
             $contents .= '    <table name="' . $tableName . '" resource="default" engine="innodb" charset="utf8" comment="Auto generated Table">' . PHP_EOL;
             $contents .= '        <column xsi:type="int" name="id" padding="10" unsigned="true" nullable="false" comment="Entity Id" identity="true" />' . PHP_EOL;
+            $contents .= '        <column xsi:type="int" name="store_id" padding="11" nullable="true" />' . PHP_EOL;
             foreach ($columns as $column) {
                 $type = $column['type'];
                 $columnStr = '        <column xsi:type="' . $type . '" ';
