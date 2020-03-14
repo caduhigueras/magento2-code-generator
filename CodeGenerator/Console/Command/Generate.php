@@ -11,6 +11,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Question\Question;
 use CodeBaby\CodeGenerator\Console\Command\Generate\InitialModuleStructure;
 use CodeBaby\CodeGenerator\Console\Command\Generate\DbSchemaStructure;
+use CodeBaby\CodeGenerator\Console\Command\Generate\ApiAndModelStructure;
 
 class Generate extends Command
 {
@@ -25,15 +26,21 @@ class Generate extends Command
      * @var DbSchemaStructure
      */
     private $dbSchemaStructure;
+    /**
+     * @var ApiAndModelStructure
+     */
+    private $apiAndModelStructure;
 
     public function __construct(
         InitialModuleStructure $initialModuleStructure,
         DbSchemaStructure $dbSchemaStructure,
+        ApiAndModelStructure $apiAndModelStructure,
         string $name = null
     ) {
         parent::__construct($name);
         $this->initialModuleStructure = $initialModuleStructure;
         $this->dbSchemaStructure = $dbSchemaStructure;
+        $this->apiAndModelStructure = $apiAndModelStructure;
     }
 
     protected function configure()
@@ -54,7 +61,14 @@ class Generate extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $module = $this->initialModuleStructure($input,$output);
-        $this->dbSchemaStructure($input, $output, $module);
+        $dbInfo = $this->dbSchemaStructure($input, $output, $module);
+        $this->createApiAndModelFiles($input, $output, $module, $dbInfo);/*
+        $this->createModelFiles($input, $output, $module);
+        $this->createDiXml($input, $output, $module);
+        $this->createBackendControllers($input, $output, $module);
+        $this->createBackendBlocks($input, $output, $module);
+        $this->createUiComponents($input, $output, $module);
+        $this->createViewFiles($input, $output, $module);*/
 //        $output->writeln($bundleName);
 
 //        $vendor = $input->getArgument(self::INPUT_KEY_VENDOR);
@@ -155,19 +169,40 @@ class Generate extends Command
                 if($columnNullableAnswer !== 'n') {
                     $column['nullable'] = $columnNullableAnswer;
                 }
+
                 //and finally lets ask for the ui component form type, label and option if there is
-                $columnBackend = new Question('Define <fg=green>backend type</> for the form?'. PHP_EOL .'(allowed types: checkbox | select | multiselect | text | imageUploader | textarea | color-picker | wysiwyg | fileUploader)' . PHP_EOL, 'text');
+                $columnBackend = new Question('Define <fg=green>backend type</> for the 
+                form?'. PHP_EOL .'(allowed types: checkbox | select | multiselect | text | imageUploader | textarea | color-picker | wysiwyg | fileUploader)' . PHP_EOL, 'text');
                 $columnBackendAnswer = $helper->ask($input, $output, $columnBackend);
                 $column['backend_type'] = $columnBackendAnswer;
 
                 $columnBackendLabel = new Question('Define <fg=green>backend label</>', 'Label');
                 $columnBackendLabelAnswer = $helper->ask($input, $output, $columnBackendLabel);
-                $column['backend_type'] = $columnBackendLabelAnswer;
+                $column['backend_label'] = $columnBackendLabelAnswer;
                 array_push($columns, $column);
             }
         }
         $resp = $this->dbSchemaStructure->generateDbSchemaXmlFile($vendorNamespace, $tableToCreateAnswer, $columns);
-        $output->writeln(print_r($columns));
+        $moduleArr = explode('_', $vendorNamespace);
+        if ($resp['success']) {
+            $output->writeln('<fg=green>Generated:</> ' . $moduleArr[0] . '/' . $moduleArr[1] . '/etc/db_schema.xml');
+        } else {
+            $output->writeln($resp['message']);
+        }
+        $dbInfo['db_name'] = $tableToCreateAnswer;
+        $dbInfo['columns'] = $columns;
+        return $dbInfo;
+    }
+
+    public function createApiAndModelFiles($input, $output, $module, $dbInfo)
+    {
+        $dbColumns = $dbInfo['columns'];
+        $dbName = $dbInfo['db_name'];
+        $helper = $this->questionHelper();
+        $installDb = new Question('Define the name of <fg=green>your entity</>? (Example: MyNewEntity): ' . PHP_EOL, 'DemoEntity');
+        $entityName = $helper->ask($input, $output, $installDb);
+        $resp = $this->apiAndModelStructure->generateApiAndModelFiles($module, $dbColumns, $entityName, $dbName);
+        $output->writeln(print_r($resp));
     }
 
     public function questionHelper()

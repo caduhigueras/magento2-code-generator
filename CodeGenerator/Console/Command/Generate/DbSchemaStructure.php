@@ -111,6 +111,8 @@ class DbSchemaStructure
                 $type = $column['type'];
                 $columnStr = '        <column xsi:type="' . $type . '" ';
                 unset($column['type']);
+                unset($column['backend_type']);
+                unset($column['backend_label']);
                 foreach ($column as $key => $value ) {
                     $columnStr .= $key . '="' . $value . '" ';
                 }
