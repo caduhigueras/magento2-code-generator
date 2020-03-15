@@ -516,12 +516,12 @@ class BackendControllersStructure
             $contents .= '        $resultRedirect = $this->resultRedirectFactory->create();' . PHP_EOL;
             $contents .= '        $duplicateId = $this->getRequest()->getParam(\'id\');' . PHP_EOL;
             $contents .= '        $' . $lowerCamelCaseEntityName . 'ToDuplicate = $this->' . $lowerCamelCaseEntityName . 'Repository->getById($duplicateId);' . PHP_EOL;
-            $contents .= '        $data = $customFormToDuplicate->getData();' . PHP_EOL;
+            $contents .= '        $data = $' . $lowerCamelCaseEntityName . 'ToDuplicate->getData();' . PHP_EOL;
             $contents .= '        $' . $lowerCamelCaseEntityName . 'Model = $this->' . $lowerCamelCaseEntityName . 'Factory->create([\'data\' => $data]);' . PHP_EOL;
             $contents .= '        $' . $lowerCamelCaseEntityName . 'Model->setId(null);' . PHP_EOL;
             $contents .= '        $' . $lowerCamelCaseEntityName . 'Model->setKey($data[\'key\'] . \'-new-\' . uniqid());' . PHP_EOL;
             $contents .= '        $this->' . $lowerCamelCaseEntityName . 'Repository->save($' . $lowerCamelCaseEntityName . 'Model);' . PHP_EOL;
-            $contents .= '        $id = $c' . $lowerCamelCaseEntityName . 'Model->getId();' . PHP_EOL;
+            $contents .= '        $id = $' . $lowerCamelCaseEntityName . 'Model->getId();' . PHP_EOL;
             $contents .= '        $this->messageManager->addSuccessMessage(__(\'You have duplicated the ' . $title . '.\'));' . PHP_EOL;
             $contents .= '        return $resultRedirect->setPath(\'*/*/edit\', [\'id\' => $id]);' . PHP_EOL;
             $contents .= '    }' . PHP_EOL;

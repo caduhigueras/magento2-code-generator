@@ -234,7 +234,7 @@ class BackendBlocksStructure
             $contents .= '                \'class\' => \'delete\',' . PHP_EOL;
             $contents .= '                \'on_click\' => \'deleteConfirm(\\\'\' . __(' . PHP_EOL;
             $contents .= '                        \'Are you sure you want to do this?\'' . PHP_EOL;
-            $contents .= '                    ) . \'\\\', \\\'\' . $this->getDeleteUrl() . \'\', {"data": {}})\',' . PHP_EOL;
+            $contents .= '                    ) . \'\\\', \\\'\' . $this->getDeleteUrl() . \'\\\', {"data": {}})\',' . PHP_EOL;
             $contents .= '                \'sort_order\' => 20,' . PHP_EOL;
             $contents .= '            ];' . PHP_EOL;
             $contents .= '        }' . PHP_EOL;
@@ -347,7 +347,7 @@ class BackendBlocksStructure
             $contents .= '    protected $context;' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
-            $contents .= '     * @var ' . $entityName . 'Interface' . PHP_EOL;
+            $contents .= '     * @var ' . $entityName . 'RepositoryInterface' . PHP_EOL;
             $contents .= '     */' . PHP_EOL;
             $contents .= '    protected $' . $lowerCamelCaseEntityName . 'Repository;' . PHP_EOL;
             $contents .= '' . PHP_EOL;
@@ -357,7 +357,7 @@ class BackendBlocksStructure
             $contents .= '     */' . PHP_EOL;
             $contents .= '    public function __construct(' . PHP_EOL;
             $contents .= '        Context $context,' . PHP_EOL;
-            $contents .= '        ' . $entityName . 'Interface $' . $lowerCamelCaseEntityName . 'Repository' . PHP_EOL;
+            $contents .= '        ' . $entityName . 'RepositoryInterface $' . $lowerCamelCaseEntityName . 'Repository' . PHP_EOL;
             $contents .= '    ) {' . PHP_EOL;
             $contents .= '        $this->context = $context;' . PHP_EOL;
             $contents .= '        $this->' . $lowerCamelCaseEntityName . 'Repository = $' . $lowerCamelCaseEntityName . 'Repository;' . PHP_EOL;
