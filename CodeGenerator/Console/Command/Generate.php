@@ -219,6 +219,10 @@ class Generate extends Command
                 $columnBackendFieldsetAnswer = $helper->ask($input, $output, $columnBackendFieldset);
                 $column['backend_fieldset'] = $columnBackendFieldsetAnswer;
 
+                $columnBackendGridInclude = new Question('<fg=green>Display this column on grid?</> (y/n)' . PHP_EOL, 'y');
+                $columnBackendGridIncludeAnswer = $helper->ask($input, $output, $columnBackendGridInclude);
+                $column['backend_grid'] = $columnBackendGridIncludeAnswer;
+
                 array_push($columns, $column);
             }
         }
