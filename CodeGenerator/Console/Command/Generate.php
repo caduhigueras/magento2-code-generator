@@ -14,6 +14,7 @@ use CodeBaby\CodeGenerator\Console\Command\Generate\DbSchemaStructure;
 use CodeBaby\CodeGenerator\Console\Command\Generate\ApiAndModelStructure;
 use CodeBaby\CodeGenerator\Console\Command\Generate\DiXmlStructure;
 use CodeBaby\CodeGenerator\Console\Command\Generate\BackendControllersStructure;
+use CodeBaby\CodeGenerator\Console\Command\Generate\BackendBlocksStructure;
 
 class Generate extends Command
 {
@@ -44,6 +45,10 @@ class Generate extends Command
      * @var BackendControllersStructure
      */
     private $backendControllersStructure;
+    /**
+     * @var BackendBlocksStructure
+     */
+    private $backendBlocksStructure;
 
     public function __construct(
         InitialModuleStructure $initialModuleStructure,
@@ -51,6 +56,7 @@ class Generate extends Command
         ApiAndModelStructure $apiAndModelStructure,
         DiXmlStructure $diXmlStructure,
         BackendControllersStructure $backendControllersStructure,
+        BackendBlocksStructure $backendBlocksStructure,
         string $name = null
     ) {
         parent::__construct($name);
@@ -59,6 +65,7 @@ class Generate extends Command
         $this->apiAndModelStructure = $apiAndModelStructure;
         $this->diXmlStructure = $diXmlStructure;
         $this->backendControllersStructure = $backendControllersStructure;
+        $this->backendBlocksStructure = $backendBlocksStructure;
     }
 
     protected function configure()
@@ -82,14 +89,10 @@ class Generate extends Command
         $dbInfo = $this->dbSchemaStructure($input, $output, $module);
         $entityName = $this->createApiAndModelFiles($input, $output, $module, $dbInfo);
         $this->createDiXml($output, $module, $dbInfo, $entityName);
-        $this->createBackendControllers($input, $output, $module, $entityName, $dbInfo);/*
-        $this->createBackendBlocks($input, $output, $module);
-        $this->createUiComponentFiles($input, $output, $module);
-        $this->createViewFiles($input, $output, $module);*/
-//        $output->writeln($bundleName);
-
-//        $vendor = $input->getArgument(self::INPUT_KEY_VENDOR);
-//        $module = $input->getArgument(self::INPUT_KEY_MODULE);
+        $frontName = $this->createBackendControllers($input, $output, $module, $entityName, $dbInfo);
+        $this->createBackendBlocks($output, $module, $entityName, $dbInfo, $frontName);
+//        $this->createUiComponentFiles($input, $output, $module);
+//        $this->createViewFiles($input, $output, $module);
 
         foreach ($this->outputsArr as $msg) {
             $output->writeln($msg);
@@ -286,6 +289,15 @@ class Generate extends Command
         }
     }
 
+    /**
+     * @param $input
+     * @param $output
+     * @param $module
+     * @param $entityName
+     * @param $dbInfo
+     * @return mixed
+     * @throws \Magento\Framework\Exception\FileSystemException
+     */
     public function createBackendControllers($input, $output, $module, $entityName, $dbInfo)
     {
         $vendorNamespaceArr = explode('_', $module);
@@ -299,6 +311,46 @@ class Generate extends Command
         $dbColumns = $dbInfo['columns'];
         $dbName = $dbInfo['db_name'];
         $resp = $this->backendControllersStructure->generateBackendRoutesAndControllers($vendorNamespaceArr, $entityName, $dbColumns, $dbName, $frontName, $menuPosition);
+        if ($resp['success']) {
+            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/etc/routes.xml');
+            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/etc/menu.xml');
+            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Controller/Adminthml/Index/Index.php');
+            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Controller/Adminthml/' . $entityName . '/Add.php');
+            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Controller/Adminthml/' . $entityName . '/Delete.php');
+            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Controller/Adminthml/' . $entityName . '/Duplicate.php');
+            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Controller/Adminthml/' . $entityName . '/Edit.php');
+            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Controller/Adminthml/' . $entityName . '/Save.php');
+//            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Controller/Adminthml/' . $entityName . '/Upload.php');
+        } else {
+            $output->writeln($resp['message']);
+        }
+        return $frontName;
+    }
+
+    /**
+     * @param $output
+     * @param $module
+     * @param $entityName
+     * @param $dbInfo
+     * @param $frontName
+     */
+    public function createBackendBlocks($output, $module, $entityName, $dbInfo, $frontName)
+    {
+        $vendorNamespaceArr = explode('_', $module);
+        $dbColumns = $dbInfo['columns'];
+        $dbName = $dbInfo['db_name'];
+        $resp = $this->backendBlocksStructure->generateBlockFiles($vendorNamespaceArr, $entityName, $dbColumns, $dbName, $frontName);
+        if ($resp['success']) {
+            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Block/Adminhtml/' . $entityName . '/BackButton.php');
+            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Block/Adminhtml/' . $entityName . '/DeleteButton.php');
+            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Block/Adminhtml/' . $entityName . '/DuplicateButton.php');
+            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Block/Adminhtml/' . $entityName . '/GenericButton.php');
+            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Block/Adminhtml/' . $entityName . '/SaveAndContinueButton.php');
+            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Block/Adminhtml/' . $entityName . '/SaveButton.php');
+//            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Controller/Adminthml/' . $entityName . '/Upload.php');
+        } else {
+            $output->writeln($resp['message']);
+        }
     }
 
     /**

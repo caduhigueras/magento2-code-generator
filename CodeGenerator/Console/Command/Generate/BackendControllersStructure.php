@@ -612,7 +612,7 @@ class BackendControllersStructure
             $contents .= '                return $resultRedirect->setPath(\'*/*/edit\', [\'id\' => $id]);' . PHP_EOL;
             $contents .= '            }' . PHP_EOL;
             $contents .= '        }' . PHP_EOL;
-            $contents .= '        $this->messageManager->addErrorMessage(__(\'We can\'t find this ' . $title . ' to delete.\'));' . PHP_EOL;
+            $contents .= '        $this->messageManager->addErrorMessage(__(\'We can\\\'t find this ' . $title . ' to delete.\'));' . PHP_EOL;
             $contents .= '        return $resultRedirect->setPath(\'' . $frontName . '/index/index\');' . PHP_EOL;
             $contents .= '    }' . PHP_EOL;
             $contents .= '}' . PHP_EOL;
