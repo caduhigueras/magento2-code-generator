@@ -13,11 +13,16 @@ use CodeBaby\CodeGenerator\Console\Command\Generate\InitialModuleStructure;
 use CodeBaby\CodeGenerator\Console\Command\Generate\DbSchemaStructure;
 use CodeBaby\CodeGenerator\Console\Command\Generate\ApiAndModelStructure;
 use CodeBaby\CodeGenerator\Console\Command\Generate\DiXmlStructure;
+use CodeBaby\CodeGenerator\Console\Command\Generate\BackendControllersStructure;
 
 class Generate extends Command
 {
 //    const INPUT_KEY_VENDOR = 'vendor';
 //    const INPUT_KEY_MODULE = 'module';
+    /**
+     * @var array
+     */
+    public $outputsArr = [];
 
     /**
      * @var InitialModuleStructure
@@ -35,12 +40,17 @@ class Generate extends Command
      * @var DiXmlStructure
      */
     private $diXmlStructure;
+    /**
+     * @var BackendControllersStructure
+     */
+    private $backendControllersStructure;
 
     public function __construct(
         InitialModuleStructure $initialModuleStructure,
         DbSchemaStructure $dbSchemaStructure,
         ApiAndModelStructure $apiAndModelStructure,
         DiXmlStructure $diXmlStructure,
+        BackendControllersStructure $backendControllersStructure,
         string $name = null
     ) {
         parent::__construct($name);
@@ -48,6 +58,7 @@ class Generate extends Command
         $this->dbSchemaStructure = $dbSchemaStructure;
         $this->apiAndModelStructure = $apiAndModelStructure;
         $this->diXmlStructure = $diXmlStructure;
+        $this->backendControllersStructure = $backendControllersStructure;
     }
 
     protected function configure()
@@ -70,24 +81,19 @@ class Generate extends Command
         $module = $this->initialModuleStructure($input,$output);
         $dbInfo = $this->dbSchemaStructure($input, $output, $module);
         $entityName = $this->createApiAndModelFiles($input, $output, $module, $dbInfo);
-        $this->createDiXml($input, $output, $module, $dbInfo, $entityName);/*
-        $this->createBackendControllers($input, $output, $module);
+        $this->createDiXml($output, $module, $dbInfo, $entityName);
+        $this->createBackendControllers($input, $output, $module, $entityName, $dbInfo);/*
         $this->createBackendBlocks($input, $output, $module);
-        $this->createUiComponents($input, $output, $module);
+        $this->createUiComponentFiles($input, $output, $module);
         $this->createViewFiles($input, $output, $module);*/
 //        $output->writeln($bundleName);
 
 //        $vendor = $input->getArgument(self::INPUT_KEY_VENDOR);
 //        $module = $input->getArgument(self::INPUT_KEY_MODULE);
 
-/*        //creating main folder to receive the module
-        $this->createMainFolder($vendor, $module);
-        //create registration.php
-        $this->createFile("registration.php", $this->getMainPath($vendor, $module), $this->registrationStructure($vendor, $module));
-        //create etc/module.xml
-        $this->createFile("module.xml", $this->getMainPath($vendor, $module) . "etc/", $this->moduleStructure($vendor, $module));
-        //create composer.json file
-        $this->createFile("composer.json", $this->getMainPath($vendor, $module), $this->composerJsonStructure($vendor, $module));*/
+        foreach ($this->outputsArr as $msg) {
+            $output->writeln($msg);
+        }
         return Cli::RETURN_SUCCESS;
     }
 
@@ -115,9 +121,9 @@ class Generate extends Command
             $resp = $this->initialModuleStructure->createInitialModuleStructure($moduleToCreateAnswer, $sequenceModulesAnswer);
             $moduleArr = explode('_', $moduleToCreateAnswer);
             if ($resp['success']) {
-                $output->writeln('<fg=green>Generated:</> ' . $moduleArr[0] . '/' . $moduleArr[1] . '/registration.php');
-                $output->writeln('<fg=green>Generated:</> ' . $moduleArr[0] . '/' . $moduleArr[1] . '/composer.json');
-                $output->writeln('<fg=green>Generated:</> ' . $moduleArr[0] . '/' . $moduleArr[1] . '/etc/module.xml');
+                array_push($this->outputsArr, '<fg=green>Generated:</> ' . $moduleArr[0] . '/' . $moduleArr[1] . '/registration.php');
+                array_push($this->outputsArr, '<fg=green>Generated:</> ' . $moduleArr[0] . '/' . $moduleArr[1] . '/composer.json');
+                array_push($this->outputsArr, '<fg=green>Generated:</> ' . $moduleArr[0] . '/' . $moduleArr[1] . '/etc/module.xml');
             } else {
                 $output->writeln($resp['message']);
             }
@@ -188,16 +194,38 @@ class Generate extends Command
                 $columnBackendAnswer = $helper->ask($input, $output, $columnBackend);
                 $column['backend_type'] = $columnBackendAnswer;
 
+                if ($columnBackendAnswer === 'select' || $columnBackendAnswer === 'multiselect') {
+                    for( $i = 0; $i<50; $i++ ) {
+                        $options = [];
+                        $optionCreate = new Question('Please add the <fg=green>value and label</> of the option (Format: value, label):'
+                            . PHP_EOL . 'Press enter to stop adding options' . PHP_EOL, 'n');
+                        $columnToCreateAnswer = $helper->ask($input, $output, $optionCreate);
+                        if ($columnToCreateAnswer === 'n') {
+                            break;
+                        }
+                        $optionsArr = [];
+                        $option = explode(',', $columnToCreateAnswer);
+                        $optionsArr['value'] = $option[0];
+                        $optionsArr['label'] = $option[1];
+                        array_push($options, $optionsArr);
+                    }
+                }
+
                 $columnBackendLabel = new Question('Define <fg=green>backend label</>' . PHP_EOL, 'Label');
                 $columnBackendLabelAnswer = $helper->ask($input, $output, $columnBackendLabel);
                 $column['backend_label'] = $columnBackendLabelAnswer;
+
+                $columnBackendFieldset = new Question('Define <fg=green>backend fieldset</>' . PHP_EOL, 'general');
+                $columnBackendFieldsetAnswer = $helper->ask($input, $output, $columnBackendFieldset);
+                $column['backend_fieldset'] = $columnBackendFieldsetAnswer;
+
                 array_push($columns, $column);
             }
         }
         $resp = $this->dbSchemaStructure->generateDbSchemaXmlFile($vendorNamespace, $tableToCreateAnswer, $columns);
         $moduleArr = explode('_', $vendorNamespace);
         if ($resp['success']) {
-            $output->writeln('<fg=green>Generated:</> ' . $moduleArr[0] . '/' . $moduleArr[1] . '/etc/db_schema.xml');
+            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $moduleArr[0] . '/' . $moduleArr[1] . '/etc/db_schema.xml');
         } else {
             $output->writeln($resp['message']);
         }
@@ -224,29 +252,47 @@ class Generate extends Command
         $entityName = $helper->ask($input, $output, $installDb);
         $resp = $this->apiAndModelStructure->generateApiAndModelFiles($module, $dbColumns, $entityName, $dbName);
         if ($resp['success']) {
-            $output->writeln('<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Model/' . $entityName . '/' . $entityName . '.php');
-            $output->writeln('<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Model/' . $entityName . '/' . $entityName . 'Repository.php');
-            $output->writeln('<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Model/' . $entityName . '/' . 'ResourceModel' . '/' . $entityName . '.php');
-            $output->writeln('<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Model/' . $entityName . '/' . 'ResourceModel' . '/' . $entityName . '/' . 'Collection.php');
-            $output->writeln('<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Model/' . $entityName . '/' . 'ResourceModel' . '/' . $entityName . '/' . 'Grid' . '/' . 'Collection.php');
+            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Model/' . $entityName . '/' . $entityName . '.php');
+            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Model/' . $entityName . '/' . $entityName . 'Repository.php');
+            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Model/' . $entityName . '/' . 'ResourceModel' . '/' . $entityName . '.php');
+            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Model/' . $entityName . '/' . 'ResourceModel' . '/' . $entityName . '/' . 'Collection.php');
+            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Model/' . $entityName . '/' . 'ResourceModel' . '/' . $entityName . '/' . 'Grid' . '/' . 'Collection.php');
         } else {
             $output->writeln($resp['message']);
         }
-        $output->writeln(print_r($resp));
         return $entityName;
     }
 
-    public function createDiXml($input, $output, $module, $dbInfo, $entityName)
+    /**
+     * @param $output
+     * @param $module
+     * @param $dbInfo
+     * @param $entityName
+     */
+    public function createDiXml($output, $module, $dbInfo, $entityName)
     {
         $vendorNamespaceArr = explode('_', $module);
         $dbColumns = $dbInfo['columns'];
         $dbName = $dbInfo['db_name'];
         $resp = $this->diXmlStructure->generateDiXmlFile($vendorNamespaceArr, $dbColumns, $entityName, $dbName);
         if ($resp['success']) {
-            $output->writeln('<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/etc/di.xml');
+            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/etc/di.xml');
         } else {
             $output->writeln($resp['message']);
         }
+    }
+
+    public function createBackendControllers($input, $output, $module, $entityName, $dbInfo)
+    {
+        $vendorNamespaceArr = explode('_', $module);
+        $helper = $this->questionHelper();
+        $frontNameQuestion = new Question('Define the backend <fg=green>router frontName</>: ' . PHP_EOL, 'demo-entity-frontend');
+        $frontName = $helper->ask($input, $output, $frontNameQuestion);
+        $menuPositionQuestion = new Question('Define where on the backend it should appear:' . PHP_EOL .
+            'Examples: menu_root | Magento_Backend::content | Magento_Customer::customer | Magento_Catalog::catalog | Magento_Catalog::catalog_products | '. PHP_EOL .
+            'Magento_Catalog::catalog_categories | Magento_Sales::sales | Magento_Sales::sales_order | Magento_Sales::sales_shipment ' . PHP_EOL, 'menu_root');
+        $menuPosition = $helper->ask($input, $output, $menuPositionQuestion);
+        $resp = $this->backendControllersStructure->generateBackendRoutesAndControllers($vendorNamespaceArr, $entityName, $dbInfo, $frontName, $menuPosition);
     }
 
     /**
