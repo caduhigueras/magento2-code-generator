@@ -292,7 +292,9 @@ class Generate extends Command
             'Examples: menu_root | Magento_Backend::content | Magento_Customer::customer | Magento_Catalog::catalog | Magento_Catalog::catalog_products | '. PHP_EOL .
             'Magento_Catalog::catalog_categories | Magento_Sales::sales | Magento_Sales::sales_order | Magento_Sales::sales_shipment ' . PHP_EOL, 'menu_root');
         $menuPosition = $helper->ask($input, $output, $menuPositionQuestion);
-        $resp = $this->backendControllersStructure->generateBackendRoutesAndControllers($vendorNamespaceArr, $entityName, $dbInfo, $frontName, $menuPosition);
+        $dbColumns = $dbInfo['columns'];
+        $dbName = $dbInfo['db_name'];
+        $resp = $this->backendControllersStructure->generateBackendRoutesAndControllers($vendorNamespaceArr, $entityName, $dbColumns, $dbName, $frontName, $menuPosition);
     }
 
     /**
