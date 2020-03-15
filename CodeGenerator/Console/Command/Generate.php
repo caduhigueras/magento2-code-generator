@@ -12,6 +12,7 @@ use Symfony\Component\Console\Question\Question;
 use CodeBaby\CodeGenerator\Console\Command\Generate\InitialModuleStructure;
 use CodeBaby\CodeGenerator\Console\Command\Generate\DbSchemaStructure;
 use CodeBaby\CodeGenerator\Console\Command\Generate\ApiAndModelStructure;
+use CodeBaby\CodeGenerator\Console\Command\Generate\DiXmlStructure;
 
 class Generate extends Command
 {
@@ -30,17 +31,23 @@ class Generate extends Command
      * @var ApiAndModelStructure
      */
     private $apiAndModelStructure;
+    /**
+     * @var DiXmlStructure
+     */
+    private $diXmlStructure;
 
     public function __construct(
         InitialModuleStructure $initialModuleStructure,
         DbSchemaStructure $dbSchemaStructure,
         ApiAndModelStructure $apiAndModelStructure,
+        DiXmlStructure $diXmlStructure,
         string $name = null
     ) {
         parent::__construct($name);
         $this->initialModuleStructure = $initialModuleStructure;
         $this->dbSchemaStructure = $dbSchemaStructure;
         $this->apiAndModelStructure = $apiAndModelStructure;
+        $this->diXmlStructure = $diXmlStructure;
     }
 
     protected function configure()
@@ -62,9 +69,8 @@ class Generate extends Command
     {
         $module = $this->initialModuleStructure($input,$output);
         $dbInfo = $this->dbSchemaStructure($input, $output, $module);
-        $this->createApiAndModelFiles($input, $output, $module, $dbInfo);/*
-        $this->createModelFiles($input, $output, $module);
-        $this->createDiXml($input, $output, $module);
+        $entityName = $this->createApiAndModelFiles($input, $output, $module, $dbInfo);
+        $this->createDiXml($input, $output, $module, $dbInfo, $entityName);/*
         $this->createBackendControllers($input, $output, $module);
         $this->createBackendBlocks($input, $output, $module);
         $this->createUiComponents($input, $output, $module);
@@ -119,6 +125,12 @@ class Generate extends Command
         return $moduleToCreateAnswer;
     }
 
+    /**
+     * @param $input
+     * @param $output
+     * @param $vendorNamespace
+     * @return mixed
+     */
     public function dbSchemaStructure($input,$output, $vendorNamespace)
     {
         $helper = $this->questionHelper();
@@ -194,6 +206,14 @@ class Generate extends Command
         return $dbInfo;
     }
 
+    /**
+     * @param $input
+     * @param $output
+     * @param $module
+     * @param $dbInfo
+     * @return mixed
+     * @throws \Magento\Framework\Exception\FileSystemException
+     */
     public function createApiAndModelFiles($input, $output, $module, $dbInfo)
     {
         $vendorNamespaceArr = explode('_', $module);
@@ -213,8 +233,25 @@ class Generate extends Command
             $output->writeln($resp['message']);
         }
         $output->writeln(print_r($resp));
+        return $entityName;
     }
 
+    public function createDiXml($input, $output, $module, $dbInfo, $entityName)
+    {
+        $vendorNamespaceArr = explode('_', $module);
+        $dbColumns = $dbInfo['columns'];
+        $dbName = $dbInfo['db_name'];
+        $resp = $this->diXmlStructure->generateDiXmlFile($vendorNamespaceArr, $dbColumns, $entityName, $dbName);
+        if ($resp['success']) {
+            $output->writeln('<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/etc/di.xml');
+        } else {
+            $output->writeln($resp['message']);
+        }
+    }
+
+    /**
+     * @return mixed|\Symfony\Component\Console\Helper\QuestionHelper
+     */
     public function questionHelper()
     {
         return $this->getHelper('question');
