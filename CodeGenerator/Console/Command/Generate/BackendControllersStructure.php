@@ -745,9 +745,9 @@ class BackendControllersStructure
              * Others just add to the parent
              */
             if ($menuPosition === 'menu_root') {
-                $contents .= '<add id="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '::' . $snakeCaseEntityName . '" title="' . $title . '" 
+                $contents .= '        <add id="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '::' . $snakeCaseEntityName . '" title="' . $title . '" 
                 module="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '" resource="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '::' . $snakeCaseEntityName . '" 
-                translate="title" sortOrder="900" action="' . $frontName . '"/>';
+                translate="title" sortOrder="900" action="' . $frontName . '"/>' . PHP_EOL;
             } elseif ($menuPosition === 'Magento_Backend::content' || $menuPosition === 'Magento_Catalog::catalog') {
                 $contents .= '        <add id="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '::' . $snakeCaseEntityName . '" title="' . $title . ' Menu' . '" 
                 translate="title" module="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '" sortOrder="100" parent="'. $menuPosition . '" 
