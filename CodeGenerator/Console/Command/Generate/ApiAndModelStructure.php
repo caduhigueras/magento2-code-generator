@@ -103,6 +103,11 @@ class ApiAndModelStructure
             $result['message'] = 'Could not generate Api Interface File';
             return $result;
         }
+        if (!$this->generateApiDataSearchInterfaceFile($appFolderPath, $vendorNamespaceArr, $entityName)) {
+            $result['success'] = false;
+            $result['message'] = 'Could not generate Api Search Interface File';
+            return $result;
+        }
         if (!$this->generateModelFiles($appFolderPath, $vendorNamespaceArr, $dbColumns, $entityName, $dbName)) {
             $result['success'] = false;
             $result['message'] = 'Could not generate Model Files';
@@ -111,6 +116,49 @@ class ApiAndModelStructure
         $result['success'] = true;
 //        $result['message'] = 'Could not generate Api Repository File';
         return $result;
+    }
+
+    /**
+     * @param $appFolderPath
+     * @param $vendorNamespaceArr
+     * @param $entityName
+     * @return bool
+     */
+    public function generateApiDataSearchInterfaceFile($appFolderPath, $vendorNamespaceArr, $entityName)
+    {
+        $apiRepositoryFile = $appFolderPath . 'code' . '/' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Api/Data' . '/' . $entityName . 'SearchResultsInterface.php';
+        if (!$this->filesystemIo->fileExists($apiRepositoryFile)) {
+            $contents = '<?php' . PHP_EOL;
+            $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Api\\Data;' . PHP_EOL;
+            $contents .= '' . PHP_EOL;
+            $contents .= 'use Magento\\Framework\\Api\\SearchResultsInterface;' . PHP_EOL;
+            $contents .= '' . PHP_EOL;
+            $contents .= 'interface ' . $entityName . 'SearchResultsInterface extends SearchResultsInterface' . PHP_EOL;
+            $contents .= '{' . PHP_EOL;
+            $contents .= '    /**' . PHP_EOL;
+            $contents .= '     * Get ' . $entityName . ' list.' . PHP_EOL;
+            $contents .= '     *' . PHP_EOL;
+            $contents .= '     * @return ' . $entityName . 'Interface[]' . PHP_EOL;
+            $contents .= '     */' . PHP_EOL;
+            $contents .= '    public function getItems();' . PHP_EOL;
+            $contents .= '' . PHP_EOL;
+            $contents .= '    /**' . PHP_EOL;
+            $contents .= '     * Set ' . $entityName . ' list.' . PHP_EOL;
+            $contents .= '     *' . PHP_EOL;
+            $contents .= '     * @param ' . $entityName . 'Interface[] $items' . PHP_EOL;
+            $contents .= '     * @return $this' . PHP_EOL;
+            $contents .= '     */' . PHP_EOL;
+            $contents .= '    public function setItems(array $items);' . PHP_EOL;
+            $contents .= '}' . PHP_EOL;
+            $contents .= '' . PHP_EOL;
+            if ($this->filesystemIo->write($apiRepositoryFile, $contents)) {
+                return true;
+            }
+            return false;
+        } else {
+            //TODO: define action when file already exists
+            return true;
+        }
     }
 
     /**
@@ -134,9 +182,10 @@ class ApiAndModelStructure
             $contents .= 'interface ' . $entityName . 'RepositoryInterface' . PHP_EOL;
             $contents .= '{' . PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
-            $contents .= '     * @return ' . $entityName . 'Interface[]' . PHP_EOL;
+            $contents .= '     *@param \\Magento\\Framework\\Api\\SearchCriteriaInterface $searchCriteria' . PHP_EOL;
+            $contents .= '     * @return mixed' . PHP_EOL;
             $contents .= '     */' . PHP_EOL;
-            $contents .= '    public function getList();' . PHP_EOL;
+            $contents .= '    public function getList(\\Magento\\Framework\\Api\\SearchCriteriaInterface $searchCriteria);' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
             $contents .= '     *' . PHP_EOL;
@@ -487,9 +536,12 @@ class ApiAndModelStructure
             $contents = '<?php' . PHP_EOL;
             $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model\\' . $entityName . ';' . PHP_EOL;
             $contents .= '' . PHP_EOL;
+            $contents .= 'use Magento\\Framework\\Api\\SearchCriteria\\CollectionProcessorInterface;' . PHP_EOL;
+            $contents .= 'use Magento\\Framework\\Api\\SearchCriteriaBuilderFactory;' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\Exception\\CouldNotDeleteException;' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\Exception\\CouldNotSaveException;' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\Exception\\NoSuchEntityException;' . PHP_EOL;
+            $contents .= 'use Magento\\Framework\\Stdlib\\DateTime\\TimezoneInterface;' . PHP_EOL;
             $contents .= 'use Magento\\Store\Model\\StoreManagerInterface;' . PHP_EOL;
             $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Api' . '\\' . $entityName . 'RepositoryInterface;' . PHP_EOL;
             $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . $entityName . '\\' . 'ResourceModel' . '\\' . $entityName . ' as Resource' . $entityName . ';' . PHP_EOL;
@@ -519,21 +571,53 @@ class ApiAndModelStructure
             $contents .= '    protected $storeManager;' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
+            $contents .= '     * @var TimezoneInterface' . PHP_EOL;
+            $contents .= '     */' . PHP_EOL;
+            $contents .= '    private $timezone;' . PHP_EOL;
+            $contents .= '' . PHP_EOL;
+            $contents .= '    /**' . PHP_EOL;
+            $contents .= '     * @var CollectionProcessorInterface' . PHP_EOL;
+            $contents .= '     */' . PHP_EOL;
+            $contents .= '    private $collectionProcessor;' . PHP_EOL;
+            $contents .= '' . PHP_EOL;
+            $contents .= '    /**' . PHP_EOL;
+            $contents .= '     * @var Data\\' . $entityName . 'SearchResultsInterfaceFactory' . PHP_EOL;
+            $contents .= '     */' . PHP_EOL;
+            $contents .= '    private $searchResultsFactory;' . PHP_EOL;
+            $contents .= '' . PHP_EOL;
+            $contents .= '    /**' . PHP_EOL;
+            $contents .= '     * @var SearchCriteriaBuilderFactory' . PHP_EOL;
+            $contents .= '     */' . PHP_EOL;
+            $contents .= '    private $searchCriteriaBuilder;' . PHP_EOL;
+            $contents .= '' . PHP_EOL;
+            $contents .= '    /**' . PHP_EOL;
             $contents .= '     * ' . $entityName . 'Repository constructor.' . PHP_EOL;
             $contents .= '     * @param ' . $entityName . 'Factory $' . $this->helper->convertToLowerCamelCase($entityName) . 'Factory' . PHP_EOL;
             $contents .= '     * @param Resource' . $entityName . ' $resource' . PHP_EOL;
             $contents .= '     * @param CollectionFactory $collectionFactory' . PHP_EOL;
+            $contents .= '     * @param TimezoneInterface $timezone' . PHP_EOL;
+            $contents .= '     * @param Data\\' . $entityName . 'SearchResultsInterfaceFactory $searchResultsFactory' . PHP_EOL;
+            $contents .= '     * @param CollectionProcessorInterface|null $collectionProcessor' . PHP_EOL;
+            $contents .= '     * @param SearchCriteriaBuilderFactory $searchCriteriaBuilder' . PHP_EOL;
             $contents .= '     */' . PHP_EOL;
             $contents .= '    public function __construct(' . PHP_EOL;
             $contents .= '        ' . $entityName . 'Factory $' . $this->helper->convertToLowerCamelCase($entityName) . 'Factory,' . PHP_EOL;
             $contents .= '        Resource' . $entityName . ' $resource,' . PHP_EOL;
             $contents .= '        StoreManagerInterface $storeManager,' . PHP_EOL;
             $contents .= '        CollectionFactory $collectionFactory' . PHP_EOL;
+            $contents .= '        TimezoneInterface $timezone,' . PHP_EOL;
+            $contents .= '        Data\\' . $entityName. 'SearchResultsInterfaceFactory $searchResultsFactory,' . PHP_EOL;
+            $contents .= '        CollectionProcessorInterface $collectionProcessor,' . PHP_EOL;
+            $contents .= '        SearchCriteriaBuilderFactory $searchCriteriaBuilder' . PHP_EOL;
             $contents .= '    ) {' . PHP_EOL;
             $contents .= '        $this->resource = $resource;' . PHP_EOL;
             $contents .= '        $this->' . $this->helper->convertToLowerCamelCase($entityName) . 'Factory = $' . $this->helper->convertToLowerCamelCase($entityName) . 'Factory;' . PHP_EOL;
             $contents .= '        $this->collectionFactory = $collectionFactory;' . PHP_EOL;
             $contents .= '        $this->storeManager = $storeManager;' . PHP_EOL;
+            $contents .= '        $this->timezone = $timezone;' . PHP_EOL;
+            $contents .= '        $this->collectionProcessor = $collectionProcessor;' . PHP_EOL;
+            $contents .= '        $this->searchResultsFactory = $searchResultsFactory;' . PHP_EOL;
+            $contents .= '        $this->searchCriteriaBuilder = $searchCriteriaBuilder->create();' . PHP_EOL;
             $contents .= '    }' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
