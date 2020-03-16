@@ -114,6 +114,11 @@ class DbSchemaStructure
                 unset($column['type']);
                 unset($column['backend_type']);
                 unset($column['backend_label']);
+                unset($column['backend_grid']);
+                unset($column['backend_options']);
+                unset($column['backend_fieldset']);
+                unset($column['backend_dynamic_rows']);
+
                 foreach ($column as $key => $value ) {
                     $columnStr .= $key . '="' . $value . '" ';
                 }
