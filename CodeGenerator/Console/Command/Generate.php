@@ -15,6 +15,7 @@ use CodeBaby\CodeGenerator\Console\Command\Generate\ApiAndModelStructure;
 use CodeBaby\CodeGenerator\Console\Command\Generate\DiXmlStructure;
 use CodeBaby\CodeGenerator\Console\Command\Generate\BackendControllersStructure;
 use CodeBaby\CodeGenerator\Console\Command\Generate\BackendBlocksStructure;
+use CodeBaby\CodeGenerator\Console\Command\Generate\UiFolderStructure;
 
 class Generate extends Command
 {
@@ -49,6 +50,10 @@ class Generate extends Command
      * @var BackendBlocksStructure
      */
     private $backendBlocksStructure;
+    /**
+     * @var UiFolderStructure
+     */
+    private $uiFolderStructure;
 
     public function __construct(
         InitialModuleStructure $initialModuleStructure,
@@ -57,6 +62,7 @@ class Generate extends Command
         DiXmlStructure $diXmlStructure,
         BackendControllersStructure $backendControllersStructure,
         BackendBlocksStructure $backendBlocksStructure,
+        UiFolderStructure $uiFolderStructure,
         string $name = null
     ) {
         parent::__construct($name);
@@ -66,6 +72,7 @@ class Generate extends Command
         $this->diXmlStructure = $diXmlStructure;
         $this->backendControllersStructure = $backendControllersStructure;
         $this->backendBlocksStructure = $backendBlocksStructure;
+        $this->uiFolderStructure = $uiFolderStructure;
     }
 
     protected function configure()
@@ -91,7 +98,7 @@ class Generate extends Command
         $this->createDiXml($output, $module, $dbInfo, $entityName);
         $frontName = $this->createBackendControllers($input, $output, $module, $entityName, $dbInfo);
         $this->createBackendBlocks($output, $module, $entityName, $dbInfo, $frontName);
-//        $this->createUiComponentFiles($input, $output, $module);
+        $this->createUiFiles($output, $module, $entityName, $dbInfo, $frontName);
 //        $this->createViewFiles($input, $output, $module);
 
         foreach ($this->outputsArr as $msg) {
@@ -185,21 +192,21 @@ class Generate extends Command
                 if($columnDefaultAnswer !== 'n') {
                     $column['default'] = $columnDefaultAnswer;
                 }
-                $columnNullable = new Question('Is column <fg=green>nullable</>? (true/false) or (press enter to skip):' . PHP_EOL, 'n');
+                $columnNullable = new Question('Is column <fg=green>nullable</>? (true/false) or (press enter to skip):' . PHP_EOL, 'true');
                 $columnNullableAnswer = $helper->ask($input, $output, $columnNullable);
                 if($columnNullableAnswer !== 'n') {
                     $column['nullable'] = $columnNullableAnswer;
                 }
 
                 //and finally lets ask for the ui component form type, label and option if there is
-                $columnBackend = new Question('Define <fg=green>backend type</> for the 
-                form?'. PHP_EOL .'(allowed types: checkbox | select | multiselect | text | imageUploader | textarea | color-picker | wysiwyg | fileUploader)' . PHP_EOL, 'text');
+                $columnBackend = new Question('Define <fg=green>backend type</> for the form?'
+                    . PHP_EOL .'(allowed types: checkbox | select | multiselect | text | imageUploader | textarea | color-picker | wysiwyg | fileUploader | dynamicRow)' . PHP_EOL, 'text');
                 $columnBackendAnswer = $helper->ask($input, $output, $columnBackend);
                 $column['backend_type'] = $columnBackendAnswer;
 
                 if ($columnBackendAnswer === 'select' || $columnBackendAnswer === 'multiselect') {
+                    $options = [];
                     for( $i = 0; $i<50; $i++ ) {
-                        $options = [];
                         $optionCreate = new Question('Please add the <fg=green>value and label</> of the option (Format: value, label):'
                             . PHP_EOL . 'Press enter to stop adding options' . PHP_EOL, 'n');
                         $columnToCreateAnswer = $helper->ask($input, $output, $optionCreate);
@@ -212,6 +219,46 @@ class Generate extends Command
                         $optionsArr['label'] = $option[1];
                         array_push($options, $optionsArr);
                     }
+                    $column['backend_options'] = $options;
+                }
+
+                if ($columnBackendAnswer === 'dynamicRow') {
+                    $dynamicRows = [];
+                    for( $i = 0; $i<50; $i++ ) {
+                        $dynamicRowItemArr = [];
+                        $dynamicRowItemCreate = new Question('Please add the <fg=green>dynamic item type</>' . PHP_EOL .
+                            '(Allowed: checkbox | select | multiselect | text | imageUploader | textarea | color-picker | wysiwyg | fileUploader | dynamicRow):'
+                            . PHP_EOL . 'Press enter to stop adding options' . PHP_EOL, 'n');
+                        $dynamicRowItem = $helper->ask($input, $output, $dynamicRowItemCreate);
+                        if ($dynamicRowItem === 'n') {
+                            break;
+                        }
+                        $dynamicRowItemArr['type'] = $dynamicRowItem;
+
+                        $dynamicRowItemLabelCreate = new Question('Please add the <fg=green>Label for the dynamic item</>' . PHP_EOL, 'Demo');
+                        $dynamicRowItemLabel = $helper->ask($input, $output, $dynamicRowItemLabelCreate);
+                        $dynamicRowItemArr['label'] = $dynamicRowItemLabel;
+
+                        if ($dynamicRowItemLabel === 'select' || $dynamicRowItemLabel === 'multiselect') {
+                            $options = [];
+                            for( $i = 0; $i<50; $i++ ) {
+                                $optionCreate = new Question('Please add the <fg=green>value and label</> of the option (Format: value, label):'
+                                    . PHP_EOL . 'Press enter to stop adding options' . PHP_EOL, 'n');
+                                $columnToCreateAnswer = $helper->ask($input, $output, $optionCreate);
+                                if ($columnToCreateAnswer === 'n') {
+                                    break;
+                                }
+                                $optionsArr = [];
+                                $option = explode(',', $columnToCreateAnswer);
+                                $optionsArr['value'] = $option[0];
+                                $optionsArr['label'] = $option[1];
+                                array_push($options, $optionsArr);
+                            }
+                            $dynamicRowItemArr['options'] = $options;
+                        }
+                        array_push($dynamicRows, $dynamicRowItemArr);
+                    }
+                    $column['backend_dynamic_rows'] = $dynamicRows;
                 }
 
                 $columnBackendLabel = new Question('Define <fg=green>backend label</>' . PHP_EOL, 'Label');
@@ -348,6 +395,28 @@ class Generate extends Command
             array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Block/Adminhtml/' . $entityName . '/SaveAndContinueButton.php');
             array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Block/Adminhtml/' . $entityName . '/SaveButton.php');
 //            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Controller/Adminthml/' . $entityName . '/Upload.php');
+        } else {
+            $output->writeln($resp['message']);
+        }
+    }
+
+    /**
+     * @param $input
+     * @param $output
+     * @param $module
+     * @param $entityName
+     * @param $dbInfo
+     * @param $frontName
+     * @throws \Magento\Framework\Exception\FileSystemException
+     */
+    public function createUiFiles($output, $module, $entityName, $dbInfo, $frontName)
+    {
+        $vendorNamespaceArr = explode('_', $module);
+        $dbColumns = $dbInfo['columns'];
+        $dbName = $dbInfo['db_name'];
+        $resp = $this->uiFolderStructure->generateUiFolderFiles($vendorNamespaceArr, $entityName, $dbColumns, $frontName);
+        if ($resp['success']) {
+            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Block/Adminhtml/' . $entityName . '/BackButton.php');
         } else {
             $output->writeln($resp['message']);
         }
