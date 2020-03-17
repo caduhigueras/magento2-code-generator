@@ -67,7 +67,7 @@ class BackendBlocksStructure
         $this->helper = $helper;
     }
 
-    public function generateBlockFiles($vendorNamespaceArr, $entityName, $dbColumns, $dbName, $frontName)
+    public function generateBlockFiles($vendorNamespaceArr, $entityName, $frontName)
     {
         $appFolder = $this->filesystem->getDirectoryWrite(\Magento\Framework\App\Filesystem\DirectoryList::APP);
         $appFolderPath = $appFolder->getAbsolutePath();

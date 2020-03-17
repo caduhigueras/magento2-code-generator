@@ -16,6 +16,7 @@ use CodeBaby\CodeGenerator\Console\Command\Generate\DiXmlStructure;
 use CodeBaby\CodeGenerator\Console\Command\Generate\BackendControllersStructure;
 use CodeBaby\CodeGenerator\Console\Command\Generate\BackendBlocksStructure;
 use CodeBaby\CodeGenerator\Console\Command\Generate\UiFolderStructure;
+use CodeBaby\CodeGenerator\Console\Command\Generate\ViewAndLayoutStructure;
 
 class Generate extends Command
 {
@@ -54,6 +55,10 @@ class Generate extends Command
      * @var UiFolderStructure
      */
     private $uiFolderStructure;
+    /**
+     * @var ViewAndLayoutStructure
+     */
+    private $viewAndLayoutStructure;
 
     public function __construct(
         InitialModuleStructure $initialModuleStructure,
@@ -63,6 +68,7 @@ class Generate extends Command
         BackendControllersStructure $backendControllersStructure,
         BackendBlocksStructure $backendBlocksStructure,
         UiFolderStructure $uiFolderStructure,
+        ViewAndLayoutStructure $viewAndLayoutStructure,
         string $name = null
     ) {
         parent::__construct($name);
@@ -73,6 +79,7 @@ class Generate extends Command
         $this->backendControllersStructure = $backendControllersStructure;
         $this->backendBlocksStructure = $backendBlocksStructure;
         $this->uiFolderStructure = $uiFolderStructure;
+        $this->viewAndLayoutStructure = $viewAndLayoutStructure;
     }
 
     protected function configure()
@@ -386,7 +393,7 @@ class Generate extends Command
         $vendorNamespaceArr = explode('_', $module);
         $dbColumns = $dbInfo['columns'];
         $dbName = $dbInfo['db_name'];
-        $resp = $this->backendBlocksStructure->generateBlockFiles($vendorNamespaceArr, $entityName, $dbColumns, $dbName, $frontName);
+        $resp = $this->backendBlocksStructure->generateBlockFiles($vendorNamespaceArr, $entityName,$frontName);
         if ($resp['success']) {
             array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Block/Adminhtml/' . $entityName . '/BackButton.php');
             array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Block/Adminhtml/' . $entityName . '/DeleteButton.php');
@@ -413,10 +420,10 @@ class Generate extends Command
     {
         $vendorNamespaceArr = explode('_', $module);
         $dbColumns = $dbInfo['columns'];
-        $dbName = $dbInfo['db_name'];
         $resp = $this->uiFolderStructure->generateUiFolderFiles($vendorNamespaceArr, $entityName, $dbColumns, $frontName);
         if ($resp['success']) {
-            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Block/Adminhtml/' . $entityName . '/BackButton.php');
+            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Ui/Component/Listing/Actions.php');
+            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Ui/Component/DataProvider.php');
         } else {
             $output->writeln($resp['message']);
         }
