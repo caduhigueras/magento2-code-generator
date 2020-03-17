@@ -75,12 +75,12 @@ class DiXmlStructure
             $contents = '<?xml version="1.0"?>' .PHP_EOL;
             $contents .= '<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">' .PHP_EOL;
             $contents .= '    <preference for="' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Api\\Data' . '\\' . $entityName . 'Interface" type="' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . $entityName . '\\' . $entityName . '"/>' .PHP_EOL;
-            $contents .= '    <preference for="' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Api' . '\\ ' . $entityName . 'RepositoryInterface" type="' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' .'Model' . '\\' . $entityName . '\\' . $entityName . 'Repository"/>' .PHP_EOL;
+            $contents .= '    <preference for="' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Api' . '\\' . $entityName . 'RepositoryInterface" type="' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' .'Model' . '\\' . $entityName . '\\' . $entityName . 'Repository"/>' .PHP_EOL;
             $contents .= '    <preference for="' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Api\\Data' . '\\' . $entityName . 'SearchResultsInterface" type="Magento\\Framework\\Api\\SearchResults" />' . PHP_EOL;
             $contents .= '    <type name="Magento\\Framework\\View\\Element\\UiComponent\\DataProvider\\CollectionFactory">' .PHP_EOL;
             $contents .= '        <arguments>' .PHP_EOL;
             $contents .= '            <argument name="collections" xsi:type="array">' .PHP_EOL;
-            $contents .= '                <item name="' . $this->helper->convertToSnakeCase('$entityName') . '_grid_data_source" xsi:type="string">' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . $entityName . '\\' . 'ResourceModel' . '\\' . $entityName . '\\' . 'Grid\Collection</item>' .PHP_EOL;
+            $contents .= '                <item name="' . $this->helper->convertToSnakeCase($entityName) . '_grid_data_source" xsi:type="string">' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . $entityName . '\\' . 'ResourceModel' . '\\' . $entityName . '\\' . 'Grid\Collection</item>' .PHP_EOL;
             $contents .= '            </argument>' .PHP_EOL;
             $contents .= '        </arguments>' .PHP_EOL;
             $contents .= '    </type>' .PHP_EOL;

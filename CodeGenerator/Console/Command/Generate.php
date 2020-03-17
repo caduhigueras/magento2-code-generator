@@ -2,6 +2,7 @@
 
 namespace CodeBaby\CodeGenerator\Console\Command;
 
+use CodeBaby\CodeGenerator\Helper\Data;
 use Magento\Framework\Console\Cli;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -59,6 +60,10 @@ class Generate extends Command
      * @var ViewAndLayoutStructure
      */
     private $viewAndLayoutStructure;
+    /**
+     * @var Data
+     */
+    private $helper;
 
     public function __construct(
         InitialModuleStructure $initialModuleStructure,
@@ -69,6 +74,7 @@ class Generate extends Command
         BackendBlocksStructure $backendBlocksStructure,
         UiFolderStructure $uiFolderStructure,
         ViewAndLayoutStructure $viewAndLayoutStructure,
+        Data $helper,
         string $name = null
     ) {
         parent::__construct($name);
@@ -80,6 +86,7 @@ class Generate extends Command
         $this->backendBlocksStructure = $backendBlocksStructure;
         $this->uiFolderStructure = $uiFolderStructure;
         $this->viewAndLayoutStructure = $viewAndLayoutStructure;
+        $this->helper = $helper;
     }
 
     protected function configure()
@@ -106,7 +113,7 @@ class Generate extends Command
         $frontName = $this->createBackendControllers($input, $output, $module, $entityName, $dbInfo);
         $this->createBackendBlocks($output, $module, $entityName, $dbInfo, $frontName);
         $this->createUiFiles($output, $module, $entityName, $dbInfo, $frontName);
-//        $this->createViewFiles($input, $output, $module);
+        $this->generateLayoutAndComponentFiles($output, $module, $entityName, $dbInfo, $frontName);
 
         foreach ($this->outputsArr as $msg) {
             $output->writeln($msg);
@@ -242,11 +249,7 @@ class Generate extends Command
                         }
                         $dynamicRowItemArr['type'] = $dynamicRowItem;
 
-                        $dynamicRowItemLabelCreate = new Question('Please add the <fg=green>Label for the dynamic item</>' . PHP_EOL, 'Demo');
-                        $dynamicRowItemLabel = $helper->ask($input, $output, $dynamicRowItemLabelCreate);
-                        $dynamicRowItemArr['label'] = $dynamicRowItemLabel;
-
-                        if ($dynamicRowItemLabel === 'select' || $dynamicRowItemLabel === 'multiselect') {
+                        if ($dynamicRowItem === 'select' || $dynamicRowItem === 'multiselect') {
                             $options = [];
                             for( $i = 0; $i<50; $i++ ) {
                                 $optionCreate = new Question('Please add the <fg=green>value and label</> of the option (Format: value, label):'
@@ -263,6 +266,11 @@ class Generate extends Command
                             }
                             $dynamicRowItemArr['options'] = $options;
                         }
+
+                        $dynamicRowItemLabelCreate = new Question('Please add the <fg=green>Label for the dynamic item</>' . PHP_EOL, 'Demo');
+                        $dynamicRowItemLabel = $helper->ask($input, $output, $dynamicRowItemLabelCreate);
+                        $dynamicRowItemArr['label'] = $dynamicRowItemLabel;
+
                         array_push($dynamicRows, $dynamicRowItemArr);
                     }
                     $column['backend_dynamic_rows'] = $dynamicRows;
@@ -424,6 +432,31 @@ class Generate extends Command
         if ($resp['success']) {
             array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Ui/Component/Listing/Actions.php');
             array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Ui/Component/DataProvider.php');
+        } else {
+            $output->writeln($resp['message']);
+        }
+    }
+
+    /**
+     * @param $output
+     * @param $module
+     * @param $entityName
+     * @param $dbInfo
+     * @param $frontName
+     * @throws \Magento\Framework\Exception\FileSystemException
+     */
+    public function generateLayoutAndComponentFiles($output, $module, $entityName, $dbInfo, $frontName)
+    {
+        $snakeCaseEntityName = $this->helper->convertToSnakeCase($entityName);
+        $vendorNamespaceArr = explode('_', $module);
+        $dbColumns = $dbInfo['columns'];
+        $resp = $this->viewAndLayoutStructure->generateViewAndLayoutFiles($vendorNamespaceArr, $entityName, $dbColumns, $frontName);
+        if ($resp['success']) {
+            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/view/adminhtml/layout/' . $snakeCaseEntityName . '_' . strtolower($entityName) . '_add.xml');
+            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/view/adminhtml/layout/' . $snakeCaseEntityName . '_' . strtolower($entityName) . '_edit.xml');
+            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/view/adminhtml/layout/' . $snakeCaseEntityName . '_index_index.xml');
+            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/view/adminhtml/ui_component/' . $snakeCaseEntityName . '_grid.xml');
+            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/view/adminhtml/ui_component/' . $snakeCaseEntityName . '_form.xml');
         } else {
             $output->writeln($resp['message']);
         }

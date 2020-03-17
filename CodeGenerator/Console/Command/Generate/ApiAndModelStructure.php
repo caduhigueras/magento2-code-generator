@@ -602,7 +602,7 @@ class ApiAndModelStructure
             $contents .= '        ' . $entityName . 'Factory $' . $this->helper->convertToLowerCamelCase($entityName) . 'Factory,' . PHP_EOL;
             $contents .= '        Resource' . $entityName . ' $resource,' . PHP_EOL;
             $contents .= '        StoreManagerInterface $storeManager,' . PHP_EOL;
-            $contents .= '        CollectionFactory $collectionFactory' . PHP_EOL;
+            $contents .= '        CollectionFactory $collectionFactory,' . PHP_EOL;
             $contents .= '        TimezoneInterface $timezone,' . PHP_EOL;
             $contents .= '        Data\\' . $entityName. 'SearchResultsInterfaceFactory $searchResultsFactory,' . PHP_EOL;
             $contents .= '        CollectionProcessorInterface $collectionProcessor,' . PHP_EOL;

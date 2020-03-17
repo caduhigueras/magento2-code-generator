@@ -328,8 +328,12 @@ class BackendControllersStructure
             $contents .= '' . PHP_EOL;
             $contents .= '            //iterate through fieldSets and assign them to the $' . $lowerCamelCaseEntityName . 'Data[]' . PHP_EOL;
             $contents .= '            $fieldSets = [';
+            $fieldSets = [];
             foreach ($dbColumns as $column) {
-                $contents .= '              \'' . $column['backend_fieldset'] . '\',';
+                if(!in_array($column['backend_fieldset'], $fieldSets)){
+                    array_push($fieldSets, $column['backend_fieldset']);
+                    $contents .= '\'' . $column['backend_fieldset'] . '\',';
+                }
             }
             $contents .= '            ];' . PHP_EOL;
             $contents .= '            foreach ($fieldSets as $fieldset) {' . PHP_EOL;
@@ -519,7 +523,8 @@ class BackendControllersStructure
             $contents .= '        $data = $' . $lowerCamelCaseEntityName . 'ToDuplicate->getData();' . PHP_EOL;
             $contents .= '        $' . $lowerCamelCaseEntityName . 'Model = $this->' . $lowerCamelCaseEntityName . 'Factory->create([\'data\' => $data]);' . PHP_EOL;
             $contents .= '        $' . $lowerCamelCaseEntityName . 'Model->setId(null);' . PHP_EOL;
-            $contents .= '        $' . $lowerCamelCaseEntityName . 'Model->setKey($data[\'key\'] . \'-new-\' . uniqid());' . PHP_EOL;
+            //Todo: Check for unique fields and add below logic
+//            $contents .= '        $' . $lowerCamelCaseEntityName . 'Model->setKey($data[\'key\'] . \'-new-\' . uniqid());' . PHP_EOL;
             $contents .= '        $this->' . $lowerCamelCaseEntityName . 'Repository->save($' . $lowerCamelCaseEntityName . 'Model);' . PHP_EOL;
             $contents .= '        $id = $' . $lowerCamelCaseEntityName . 'Model->getId();' . PHP_EOL;
             $contents .= '        $this->messageManager->addSuccessMessage(__(\'You have duplicated the ' . $title . '.\'));' . PHP_EOL;

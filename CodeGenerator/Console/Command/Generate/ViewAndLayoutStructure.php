@@ -298,12 +298,7 @@ class ViewAndLayoutStructure
                 $contents .= '        </field>' . PHP_EOL;
                 $contents .= '    </fieldset>' . PHP_EOL;
             } else {
-                $storeContent = '        <argument name="data" xsi:type="array">' . PHP_EOL;
-                $storeContent .= '            <item name="config" xsi:type="array">' . PHP_EOL;
-                $storeContent .= '                <item name="label" xsi:type="string" translate="true">General</item>' . PHP_EOL;
-                $storeContent .= '            </item>' . PHP_EOL;
-                $storeContent .= '        </argument>' . PHP_EOL;
-                $storeContent .= '        <field name="store_id" formElement="select">' . PHP_EOL;
+                $storeContent = '        <field name="store_id" formElement="select">' . PHP_EOL;
                 $storeContent .= '            <argument name="data" xsi:type="array">' . PHP_EOL;
                 $storeContent .= '                <item name="config" xsi:type="array">' . PHP_EOL;
                 $storeContent .= '                    <item name="source" xsi:type="string">block</item>' . PHP_EOL;
@@ -334,7 +329,7 @@ class ViewAndLayoutStructure
                 $storeColumn['backend_type'] = 'store_id';
                 $storeColumn['backend_fieldset'] = 'general';
                 $storeColumn['store_structure'] = $storeContent;
-                array_push($fieldSets, $storeColumn);
+                array_push($dbColumns, $storeColumn);
             }
             foreach ($fieldSets as $fieldSet) {
                 $contents .= '    <fieldset name="' . $fieldSet . '"><!--New fieldsets must be added at: ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Ui/Component/DataProvider.php-->' . PHP_EOL;
