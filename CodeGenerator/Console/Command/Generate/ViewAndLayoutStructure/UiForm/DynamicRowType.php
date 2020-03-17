@@ -147,5 +147,6 @@ class DynamicRowType
         $contents .= '        </actionDelete>' . PHP_EOL;
         $contents .= '    </container>' . PHP_EOL;
         $contents .= '</dynamicRows>' . PHP_EOL;
+        return $contents;
     }
 }
