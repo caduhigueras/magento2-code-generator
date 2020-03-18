@@ -80,7 +80,7 @@ class UiFolderStructure
     {
         $appFolder = $this->filesystem->getDirectoryWrite(\Magento\Framework\App\Filesystem\DirectoryList::APP);
         $appFolderPath = $appFolder->getAbsolutePath();
-        $uiListingFolder = $appFolderPath . 'code' . '/' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Ui/Component/Listing';
+        $uiListingFolder = $appFolderPath . 'code' . '/' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Ui/Component/Listing/Column';
         try {
             $this->filesystemIo->checkAndCreateFolder($uiListingFolder);
         } catch (\Exception $e) {
@@ -242,7 +242,7 @@ class UiFolderStructure
      */
     public function generateListingActionFile($vendorNamespaceArr, $uiListingFolder, $entityName, $frontName)
     {
-        $actionsFile = $uiListingFolder . '/Column/' . 'Actions.php';
+        $actionsFile = $uiListingFolder . '/' . 'Actions.php';
         $snakeCaseEntityName = $this->helper->convertToSnakeCase($entityName);
         $title = ucwords(str_replace('_', ' ', $snakeCaseEntityName));
         if (!$this->filesystemIo->fileExists($actionsFile)){
