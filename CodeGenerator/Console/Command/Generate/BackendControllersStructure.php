@@ -272,10 +272,10 @@ class BackendControllersStructure
             $contents .= '     */' . PHP_EOL;
             $contents .= '    private $' . $lowerCamelCaseEntityName . 'Factory;' . PHP_EOL;
             $contents .='' . PHP_EOL;
-            $contents .= '    /**' . PHP_EOL;
-            $contents .= '     * @var FileProcessor' . PHP_EOL;
-            $contents .= '     */' . PHP_EOL;
-            $contents .= '    private $fileProcessor;' . PHP_EOL;
+//            $contents .= '    /**' . PHP_EOL;
+//            $contents .= '     * @var FileProcessor' . PHP_EOL;
+//            $contents .= '     */' . PHP_EOL;
+//            $contents .= '    private $fileProcessor;' . PHP_EOL;
             $contents .='' . PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
             $contents .= '     * @var JsonSerializer' . PHP_EOL;
@@ -298,7 +298,7 @@ class BackendControllersStructure
             $contents .= '    private $context;' . PHP_EOL;
             $contents .='' . PHP_EOL;
             $contents .= '    public function __construct(' . PHP_EOL;
-            $contents .= '        FileProcessor $fileProcessor,' . PHP_EOL;
+//            $contents .= '        FileProcessor $fileProcessor,' . PHP_EOL;
             $contents .= '        \Magento\Backend\App\Action\Context $context,' . PHP_EOL;
             $contents .= '        ' . $entityName . 'Factory $' . $lowerCamelCaseEntityName . 'Factory,' . PHP_EOL;
             $contents .= '        ' . $entityName . 'Repository $' . $lowerCamelCaseEntityName . 'Repository,' . PHP_EOL;
@@ -308,7 +308,7 @@ class BackendControllersStructure
             $contents .= '    {' . PHP_EOL;
             $contents .= '        $this->context = $context;' . PHP_EOL;
             $contents .= '        $this->' . $lowerCamelCaseEntityName . 'Factory = $' . $lowerCamelCaseEntityName . 'Factory;' . PHP_EOL;
-            $contents .= '        $this->fileProcessor = $fileProcessor;' . PHP_EOL;
+//            $contents .= '        $this->fileProcessor = $fileProcessor;' . PHP_EOL;
             $contents .= '        $this->json = $json->create();' . PHP_EOL;
             $contents .= '        $this->' . $lowerCamelCaseEntityName . 'Repository = $' . $lowerCamelCaseEntityName . 'Repository;' . PHP_EOL;
             $contents .= '        $this->dataPersistor = $dataPersistor;' . PHP_EOL;

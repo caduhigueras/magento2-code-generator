@@ -242,7 +242,7 @@ class UiFolderStructure
      */
     public function generateListingActionFile($vendorNamespaceArr, $uiListingFolder, $entityName, $frontName)
     {
-        $actionsFile = $uiListingFolder . '/' . 'Actions.php';
+        $actionsFile = $uiListingFolder . '/Column/' . 'Actions.php';
         $snakeCaseEntityName = $this->helper->convertToSnakeCase($entityName);
         $title = ucwords(str_replace('_', ' ', $snakeCaseEntityName));
         if (!$this->filesystemIo->fileExists($actionsFile)){
