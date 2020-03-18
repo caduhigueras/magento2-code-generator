@@ -99,7 +99,7 @@ class Generate extends Command
             ->addOption('block-buttons-only', 'b', InputOption::VALUE_OPTIONAL, 'Generates only Block Buttons (save / edit / duplicate / delete / back) structure')
             ->addOption('ui-folder-only', 'u', InputOption::VALUE_OPTIONAL, 'Generates only Listing Actions and Data Provider Structure')
             ->addOption('controllers-only', 'c', InputOption::VALUE_OPTIONAL, 'Generates only Controllers (Add / Index / Edit / Save / Duplicate) Structure')
-            ->addOption('view-only', 'v', InputOption::VALUE_OPTIONAL, 'Generates only View Layouts and UiComponents Structure')
+            ->addOption('view-only', 'vo', InputOption::VALUE_OPTIONAL, 'Generates only View Layouts and UiComponents Structure')
             ->addOption('file-upload-controller', 'f', InputOption::VALUE_OPTIONAL, 'Soon!');
 //            ->addArgument(self::INPUT_KEY_VENDOR, InputArgument::REQUIRED, 'Vendor name')
 //            ->addArgument(self::INPUT_KEY_MODULE, InputArgument::REQUIRED, 'Module name');
