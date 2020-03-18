@@ -5,8 +5,9 @@ namespace CodeBaby\CodeGenerator\Console\Command;
 use CodeBaby\CodeGenerator\Helper\Data;
 use Magento\Framework\Console\Cli;
 use Symfony\Component\Console\Command\Command;
-use Symfony\Component\Console\Input\InputArgument;
+//use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
+use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 //use Symfony\Component\Console\Question\ConfirmationQuestion;
 use Symfony\Component\Console\Question\Question;
@@ -91,7 +92,15 @@ class Generate extends Command
 
     protected function configure()
     {
-        $this->setName('codebaby:generator:generate');
+        $this->setName('codebaby:generator:generate')
+            ->addOption('module-only', 'm', InputOption::VALUE_OPTIONAL, 'Generates only base module structure')
+            ->addOption('db-only', 'd', InputOption::VALUE_OPTIONAL, 'Generates only db_schema.xml structure')
+            ->addOption('api-and-model-only', 'a', InputOption::VALUE_OPTIONAL, 'Generates only Api Repository / Interface and Model related structure')
+            ->addOption('block-buttons-only', 'b', InputOption::VALUE_OPTIONAL, 'Generates only Block Buttons (save / edit / duplicate / delete / back) structure')
+            ->addOption('ui-folder-only', 'u', InputOption::VALUE_OPTIONAL, 'Generates only Listing Actions and Data Provider Structure')
+            ->addOption('controllers-only', 'c', InputOption::VALUE_OPTIONAL, 'Generates only Controllers (Add / Index / Edit / Save / Duplicate) Structure')
+            ->addOption('view-only', 'v', InputOption::VALUE_OPTIONAL, 'Generates only View Layouts and UiComponents Structure')
+            ->addOption('file-upload-controller', 'f', InputOption::VALUE_OPTIONAL, 'Soon!');
 //            ->addArgument(self::INPUT_KEY_VENDOR, InputArgument::REQUIRED, 'Vendor name')
 //            ->addArgument(self::INPUT_KEY_MODULE, InputArgument::REQUIRED, 'Module name');
 
@@ -106,6 +115,63 @@ class Generate extends Command
      */
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        $helper = $this->questionHelper();
+        //install only initial module
+        if ($input->getOption('module-only')) {
+            $this->initialModuleStructure($input,$output);
+            foreach ($this->outputsArr as $msg) {
+                $output->writeln($msg);
+            }
+            return Cli::RETURN_SUCCESS;
+        }
+        //install only db_schema
+        if ($input->getOption('db-only')) {
+            $askModule = new Question('For which module will the db_schema.xml be generated?' . PHP_EOL, 'Vendor_Namespace');
+            $module = $helper->ask($input, $output, $askModule);
+            $this->dbSchemaStructure($input,$output, $module);
+            foreach ($this->outputsArr as $msg) {
+                $output->writeln($msg);
+            }
+            return Cli::RETURN_SUCCESS;
+        }
+
+        //install only api and repo
+        if ($input->getOption('api-and-model-only')) {
+            $output->writeln('You must define the columns of the database to generate those files');
+            $askModule = new Question('For which module will the files be generated?' . PHP_EOL, 'Vendor_Namespace');
+            $module = $helper->ask($input, $output, $askModule);
+            $dbInfo = $this->dbSchemaStructure($input,$output, $module, false);
+            $this->createApiAndModelFiles($input, $output, $module, $dbInfo);
+            foreach ($this->outputsArr as $msg) {
+                $output->writeln($msg);
+            }
+            return Cli::RETURN_SUCCESS;
+        }
+
+        //install only block buttons
+        if ($input->getOption('block-buttons-only')) {
+            $output->writeln('You must define the columns of the database to generate those files');
+            $askModule = new Question('For which module will the buttons be generated?' . PHP_EOL, 'Vendor_Namespace');
+            $module = $helper->ask($input, $output, $askModule);
+
+            $askEntity = new Question('What is the entity? (Ex: MyEntity)' . PHP_EOL, 'MyEntity');
+            $entityName = $helper->ask($input, $output, $askEntity);
+
+            $dbInfo = $this->dbSchemaStructure($input,$output, $module, false);
+
+            $askFrontName = new Question('What is the frontname for the controllers? (no dashes or spaces allowed)' . PHP_EOL, 'MyEntity');
+            $frontName = $helper->ask($input, $output, $askFrontName);
+
+            $this->createBackendBlocks($output, $module, $entityName, $dbInfo, $frontName);
+            $dbInfo = $this->dbSchemaStructure($input,$output, $module, false);
+            $this->createApiAndModelFiles($input, $output, $module, $dbInfo);
+            foreach ($this->outputsArr as $msg) {
+                $output->writeln($msg);
+            }
+            return Cli::RETURN_SUCCESS;
+        }
+
+
         $module = $this->initialModuleStructure($input,$output);
         $dbInfo = $this->dbSchemaStructure($input, $output, $module);
         $entityName = $this->createApiAndModelFiles($input, $output, $module, $dbInfo);
@@ -159,9 +225,10 @@ class Generate extends Command
      * @param $input
      * @param $output
      * @param $vendorNamespace
+     * @param bool $createDb
      * @return mixed
      */
-    public function dbSchemaStructure($input,$output, $vendorNamespace)
+    public function dbSchemaStructure($input,$output, $vendorNamespace, $createDb = true)
     {
         $helper = $this->questionHelper();
         //First we ask if there is a need to create a new Module. If Yes, ask Vendor/Namespace - Yes is the default
@@ -291,12 +358,14 @@ class Generate extends Command
                 array_push($columns, $column);
             }
         }
-        $resp = $this->dbSchemaStructure->generateDbSchemaXmlFile($vendorNamespace, $tableToCreateAnswer, $columns);
-        $moduleArr = explode('_', $vendorNamespace);
-        if ($resp['success']) {
-            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $moduleArr[0] . '/' . $moduleArr[1] . '/etc/db_schema.xml');
-        } else {
-            $output->writeln($resp['message']);
+        if ($createDb) {
+            $resp = $this->dbSchemaStructure->generateDbSchemaXmlFile($vendorNamespace, $tableToCreateAnswer, $columns);
+            $moduleArr = explode('_', $vendorNamespace);
+            if ($resp['success']) {
+                array_push($this->outputsArr, '<fg=green>Generated:</> ' . $moduleArr[0] . '/' . $moduleArr[1] . '/etc/db_schema.xml');
+            } else {
+                $output->writeln($resp['message']);
+            }
         }
         $dbInfo['db_name'] = $tableToCreateAnswer;
         $dbInfo['columns'] = $columns;
@@ -364,7 +433,7 @@ class Generate extends Command
     {
         $vendorNamespaceArr = explode('_', $module);
         $helper = $this->questionHelper();
-        $frontNameQuestion = new Question('Define the backend <fg=green>router frontName</>: ' . PHP_EOL, 'demo-entity-frontend');
+        $frontNameQuestion = new Question('Define the backend <fg=green>router frontName</>: (no dashes or spaces allowed)' . PHP_EOL, 'demo-entity-frontend');
         $frontName = $helper->ask($input, $output, $frontNameQuestion);
         $menuPositionQuestion = new Question('Define where on the backend it should appear:' . PHP_EOL .
             'Examples: menu_root | Magento_Backend::content | Magento_Customer::customer | Magento_Catalog::catalog | Magento_Catalog::catalog_products | '. PHP_EOL .
