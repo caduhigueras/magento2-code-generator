@@ -206,6 +206,7 @@ class UiFolderStructure
             $contents .= '        foreach ($items as $item) {' . PHP_EOL;
             //sort columns by fieldset, just to make it more organized
             usort($dbColumns, function ($a, $b) { return $a['backend_fieldset'] <=> $b['backend_fieldset']; });
+            $contents .= '            $this->loadedData[$item->getId()][\'general\'][\'id\'] = $item->getId();' . PHP_EOL;
             foreach ($dbColumns as $column) {
                 $contents .= '            $this->loadedData[$item->getId()][\'' . $column['backend_fieldset'] . '\'][\'' . $column['name'] . '\'] = $item->getData()[\'' . $column['name'] . '\'];' . PHP_EOL;
             }
