@@ -338,7 +338,7 @@ class BackendControllersStructure
             $contents .= '            ];' . PHP_EOL;
             $contents .= '            foreach ($fieldSets as $fieldset) {' . PHP_EOL;
             $contents .= '                foreach ($data[$fieldset] as $field => $value) {' . PHP_EOL;
-            $contents .= '                    $' . $lowerCamelCaseEntityName . '[$field] = $value;' . PHP_EOL;
+            $contents .= '                    $' . $lowerCamelCaseEntityName . 'Data[$field] = $value;' . PHP_EOL;
             $contents .= '                }' . PHP_EOL;
             $contents .= '            }' . PHP_EOL;
             $contents .='' . PHP_EOL;
