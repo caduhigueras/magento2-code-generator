@@ -622,7 +622,7 @@ class ApiAndModelStructure
             $contents .= '     * @param Magento\\Framework\\Api\\SearchCriteriaInterface $searchCriteria' . PHP_EOL;
             $contents .= '     * @return mixed\\' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Api\\Data\\' . $entityName . 'Interface[]' . PHP_EOL;
             $contents .= '     */' . PHP_EOL;
-            $contents .= '    public function getList(Magento\\Framework\\Api\\SearchCriteriaInterface $searchCriteria)' . PHP_EOL;
+            $contents .= '    public function getList(\\Magento\\Framework\\Api\\SearchCriteriaInterface $searchCriteria)' . PHP_EOL;
             $contents .= '    {' . PHP_EOL;
             $contents .= '        return $this->collectionFactory->create()->getItems();' . PHP_EOL;
             $contents .= '    }' . PHP_EOL;
