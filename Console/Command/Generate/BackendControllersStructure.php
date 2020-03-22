@@ -349,8 +349,8 @@ class BackendControllersStructure
             //TODO: add serializer for dynamic rows / files
             if (count($serializedColumns) > 0) {
                 foreach ($serializedColumns as $column) {
-                    $contents .= '            if (isset($data[\'' . $column[1] . '\'] {' . PHP_EOL;
-                    $contents .= '              $' . $lowerCamelCaseEntityName . 'Data[\'' . $column[0] . '\'] = $this->json->serialize($data[\'' . $column[1] . '\'][\'' . $column[0] . '\'])' . PHP_EOL;
+                    $contents .= '            if (isset($data[\'' . $column[1] . '\'])) {' . PHP_EOL;
+                    $contents .= '              $' . $lowerCamelCaseEntityName . 'Data[\'' . $column[0] . '\'] = $this->json->serialize($data[\'' . $column[1] . '\'][\'' . $column[0] . '\']);' . PHP_EOL;
                     $contents .= '            }' . PHP_EOL;
                     $contents .= '' . PHP_EOL;
                 }
