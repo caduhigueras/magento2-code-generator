@@ -230,7 +230,7 @@ class BackendBlocksStructure
             $contents .= '        $data = [];' . PHP_EOL;
             $contents .= '        if ($this->get' . $entityName . 'Id()) {' . PHP_EOL;
             $contents .= '            $data = [' . PHP_EOL;
-            $contents .= '                \'label\' => __(\'' . $title . '\'),' . PHP_EOL;
+            $contents .= '                \'label\' => __(\'Delete ' . $title . '\'),' . PHP_EOL;
             $contents .= '                \'class\' => \'delete\',' . PHP_EOL;
             $contents .= '                \'on_click\' => \'deleteConfirm(\\\'\' . __(' . PHP_EOL;
             $contents .= '                        \'Are you sure you want to do this?\'' . PHP_EOL;
