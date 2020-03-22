@@ -234,6 +234,7 @@ class UiFolderStructure
             return false;
         } else {
             //TODO: define action when file already exists
+
             return true;
         }
     }
