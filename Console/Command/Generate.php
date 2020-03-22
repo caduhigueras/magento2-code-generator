@@ -192,6 +192,7 @@ class Generate extends Command
      * @param $output
      * @return string
      * @throws \Magento\Framework\Exception\FileSystemException
+     * @throws \Exception
      */
     public function initialModuleStructure($input,$output)
     {
@@ -257,7 +258,7 @@ class Generate extends Command
                     $columnPadding = new Question('Add <fg=green>padding</>:' . PHP_EOL, '');
                     $columnPaddingAnswer = $helper->ask($input, $output, $columnPadding);
                     $column['padding'] = $columnPaddingAnswer;
-                } elseif ($columnTypeAnswer === 'varchar' || $columnTypeAnswer === 'text' ) {
+                } elseif ($columnTypeAnswer === 'varchar') {
                     $columnLength = new Question('Add <fg=green>length</>:' . PHP_EOL, '');
                     $columnLengthAnswer = $helper->ask($input, $output, $columnLength);
                     $column['length'] = $columnLengthAnswer;

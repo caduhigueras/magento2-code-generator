@@ -208,7 +208,11 @@ class UiFolderStructure
             usort($dbColumns, function ($a, $b) { return $a['backend_fieldset'] <=> $b['backend_fieldset']; });
             $contents .= '            $this->loadedData[$item->getId()][\'general\'][\'id\'] = $item->getId();' . PHP_EOL;
             foreach ($dbColumns as $column) {
-                $contents .= '            $this->loadedData[$item->getId()][\'' . $column['backend_fieldset'] . '\'][\'' . $column['name'] . '\'] = $item->getData()[\'' . $column['name'] . '\'];' . PHP_EOL;
+                if ($column['backend_type'] === 'imageUploader' || $column['backend_type'] === 'fileUploader' || $column['backend_type'] === 'dynamicRow') {
+                    $contents .= '            $this->loadedData[$item->getId()][\'' . $column['backend_fieldset'] . '\'][\'' . $column['name'] . '\'] = $this->json->unserialize($item->getData()[\'' . $column['name'] . '\']);' . PHP_EOL;
+                } else {
+                    $contents .= '            $this->loadedData[$item->getId()][\'' . $column['backend_fieldset'] . '\'][\'' . $column['name'] . '\'] = $item->getData()[\'' . $column['name'] . '\'];' . PHP_EOL;
+                }
             }
             $contents .= '        }' . PHP_EOL;
             $contents .= '' . PHP_EOL;

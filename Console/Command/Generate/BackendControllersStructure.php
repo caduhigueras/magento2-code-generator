@@ -329,20 +329,32 @@ class BackendControllersStructure
             $contents .= '            //iterate through fieldSets and assign them to the $' . $lowerCamelCaseEntityName . 'Data[]' . PHP_EOL;
             $contents .= '            $fieldSets = [';
             $fieldSets = [];
+            $serializedColumns = [];
             foreach ($dbColumns as $column) {
                 if(!in_array($column['backend_fieldset'], $fieldSets)){
                     array_push($fieldSets, $column['backend_fieldset']);
                     $contents .= '\'' . $column['backend_fieldset'] . '\',';
                 }
+                if ($column['backend_type'] === 'imageUploader' || $column['backend_type'] === 'fileUploader' || $column['backend_type'] === 'dynamicRow') {
+                    array_push($serializedColumns, [$column['name'],$column['backend_fieldset']]);
+                }
             }
-            $contents .= '            ];' . PHP_EOL;
+            $contents .= '];' . PHP_EOL;
             $contents .= '            foreach ($fieldSets as $fieldset) {' . PHP_EOL;
             $contents .= '                foreach ($data[$fieldset] as $field => $value) {' . PHP_EOL;
             $contents .= '                    $' . $lowerCamelCaseEntityName . 'Data[$field] = $value;' . PHP_EOL;
             $contents .= '                }' . PHP_EOL;
             $contents .= '            }' . PHP_EOL;
-            $contents .='' . PHP_EOL;
+            $contents .= '' . PHP_EOL;
             //TODO: add serializer for dynamic rows / files
+            if (count($serializedColumns) > 0) {
+                foreach ($serializedColumns as $column) {
+                    $contents .= '            if (isset($data[\'' . $column[1] . '\'] {' . PHP_EOL;
+                    $contents .= '              $' . $lowerCamelCaseEntityName . 'Data[\'' . $column[0] . '\'] = $this->json->serialize($data[\'' . $column[1] . '\'][\'' . $column[0] . '\'])' . PHP_EOL;
+                    $contents .= '            }' . PHP_EOL;
+                    $contents .= '' . PHP_EOL;
+                }
+            }
             $contents .= '            $' . $lowerCamelCaseEntityName . 'Model = $this->' . $lowerCamelCaseEntityName . 'Factory->create();' . PHP_EOL;
             $contents .= '            if ($' . $lowerCamelCaseEntityName . 'Data[\'id\']) {' . PHP_EOL;
             $contents .= '                try {' . PHP_EOL;
@@ -757,7 +769,7 @@ class BackendControllersStructure
                 $contents .= '        <add id="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '::' . $snakeCaseEntityName . '" title="' . $title . ' Menu' . '" 
                 translate="title" module="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '" sortOrder="100" parent="'. $menuPosition . '" 
                 resource="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '::' . $snakeCaseEntityName . '" />' . PHP_EOL;
-                $contents .= '        <add id="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '::' . $snakeCaseEntityName . '_item" title="Custom Forms" translate="' . $title . '" 
+                $contents .= '        <add id="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '::' . $snakeCaseEntityName . '_item" title="' . $title . '" translate="' . $title . '" 
                 module="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '" sortOrder="0" parent="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '::' . $snakeCaseEntityName . '" 
                 action="' . $frontName . '" resource="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '::' . $snakeCaseEntityName . '" />' . PHP_EOL;
             } else {
