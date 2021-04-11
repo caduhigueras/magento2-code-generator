@@ -126,7 +126,7 @@ class UiFolderStructure
             $contents .= 'use Magento\\Framework\\App\\RequestInterface;' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\Serialize\\Serializer\\JsonFactory as JsonSerializer;' . PHP_EOL;
             $contents .= 'use Magento\\Ui\\DataProvider\\AbstractDataProvider;' . PHP_EOL;
-            $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\Model\\' . $entityName . '\\ResourceModel\\' . $entityName . '\\CollectionFactory;' . PHP_EOL;
+            $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\Model' . '\\ResourceModel\\' . $entityName . '\\CollectionFactory;' . PHP_EOL;
             $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\Api\\' . $entityName . 'RepositoryInterface;' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= 'class DataProvider extends AbstractDataProvider' . PHP_EOL;

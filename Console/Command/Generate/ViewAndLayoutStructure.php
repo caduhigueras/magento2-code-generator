@@ -455,9 +455,9 @@ class ViewAndLayoutStructure
             $contents .= '                <item name="config" xsi:type="array">' . PHP_EOL;
             $contents .= '                    <item name="update_url" xsi:type="url" path="mui/index/render"/>' . PHP_EOL;
             $contents .= '                    <item name="component" xsi:type="string">Magento_Ui/js/grid/provider</item>' . PHP_EOL;
-            $contents .= '                        <item name="storageConfig" xsi:type="array">' . PHP_EOL;
-            $contents .= '                          <item name="indexField" xsi:type="string">id</item>' . PHP_EOL;
-            $contents .= '                        </item>' . PHP_EOL;
+            $contents .= '                    <item name="storageConfig" xsi:type="array">' . PHP_EOL;
+            $contents .= '                      <item name="indexField" xsi:type="string">id</item>' . PHP_EOL;
+            $contents .= '                    </item>' . PHP_EOL;
             $contents .= '                </item>' . PHP_EOL;
             $contents .= '            </argument>' . PHP_EOL;
             $contents .= '        </argument>' . PHP_EOL;
@@ -594,8 +594,7 @@ class ViewAndLayoutStructure
     public function generateLayoutEditFile($editFile, $snakeCaseEntityName)
     {
         if (!$this->filesystemIo->fileExists($editFile)){
-            $contents = '<?php' . PHP_EOL;
-            $contents .= '<?xml version="1.0"?>' . PHP_EOL;
+            $contents = '<?xml version="1.0"?>' . PHP_EOL;
             $contents .= '<page layout="admin-2columns-left" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">' . PHP_EOL;
             $contents .= '    <update handle="styles"/>' . PHP_EOL;
             $contents .= '    <update handle="editor"/>' . PHP_EOL;

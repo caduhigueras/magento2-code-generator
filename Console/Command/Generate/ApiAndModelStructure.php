@@ -532,7 +532,7 @@ class ApiAndModelStructure
         $filePath = $folder . '/' . $file;
         if (!$this->filesystemIo->fileExists($filePath)) {
             $contents = '<?php' . PHP_EOL;
-            $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model\\' . ';' . PHP_EOL;
+            $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . ';' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\Api\\SearchCriteria\\CollectionProcessorInterface;' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\Api\\SearchCriteriaBuilderFactory;' . PHP_EOL;
@@ -619,8 +619,8 @@ class ApiAndModelStructure
             $contents .= '    }' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
-            $contents .= '     * @param Magento\\Framework\\Api\\SearchCriteriaInterface $searchCriteria' . PHP_EOL;
-            $contents .= '     * @return mixed\\' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Api\\Data\\' . $entityName . 'Interface[]' . PHP_EOL;
+            $contents .= '     * @param \\Magento\\Framework\\Api\\SearchCriteriaInterface $searchCriteria' . PHP_EOL;
+            $contents .= '     * @return mixed|\\' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Api\\Data\\' . $entityName . 'Interface[]' . PHP_EOL;
             $contents .= '     */' . PHP_EOL;
             $contents .= '    public function getList(\\Magento\\Framework\\Api\\SearchCriteriaInterface $searchCriteria)' . PHP_EOL;
             $contents .= '    {' . PHP_EOL;
@@ -734,7 +734,7 @@ class ApiAndModelStructure
             $contents .= '' . PHP_EOL;
             $contents .= '    protected function _construct()' . PHP_EOL;
             $contents .= '    {' . PHP_EOL;
-            $contents .= '        $this->_init(\\' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model\\' . '\\ResourceModel\\' . $entityName . '::class);' . PHP_EOL;
+            $contents .= '        $this->_init(\\' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model\\' . 'ResourceModel\\' . $entityName . '::class);' . PHP_EOL;
             $contents .= '    }' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= '    /**' .PHP_EOL;
