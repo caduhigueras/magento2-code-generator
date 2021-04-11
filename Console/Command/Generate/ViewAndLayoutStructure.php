@@ -142,10 +142,10 @@ class ViewAndLayoutStructure
      * @param $entityName
      * @param $dbColumns
      * @param $frontName
+     * @param $uiFormStyle
      * @return array
-     * @throws \Magento\Framework\Exception\FileSystemException
      */
-    public function generateViewAndLayoutFiles($vendorNamespaceArr, $entityName, $dbColumns, $frontName)
+    public function generateViewAndLayoutFiles($vendorNamespaceArr, $entityName, $dbColumns, $frontName, $uiFormStyle)
     {
         $result = [];
         $appFolder = $this->filesystem->getDirectoryWrite(\Magento\Framework\App\Filesystem\DirectoryList::APP);
@@ -196,10 +196,19 @@ class ViewAndLayoutStructure
             $result['message'] = 'Could not generate Ui Grid Xml File';
             return $result;
         }
-        if (!$this->generateUiFormFile($formFile, $snakeCaseEntityName, $title, $entityName, $vendorNamespaceArr, $dbColumns, $frontName)) {
-            $result['success'] = false;
-            $result['message'] = 'Could not generate Ui Form Xml File';
-            return $result;
+        if ($uiFormStyle == 2) {
+            if (!$this->generateUiFormFile($formFile, $snakeCaseEntityName, $title, $entityName, $vendorNamespaceArr, $dbColumns, $frontName)) {
+                $result['success'] = false;
+                $result['message'] = 'Could not generate Ui Form Xml File';
+                return $result;
+            }
+         }else {
+            /** Generate UI Form with 1 columns */
+            if (!$this->generateUiFormFile($formFile, $snakeCaseEntityName, $title, $entityName, $vendorNamespaceArr, $dbColumns, $frontName, true)) {
+                $result['success'] = false;
+                $result['message'] = 'Could not generate Ui Form Xml File';
+                return $result;
+            }
         }
         $result['success'] = true;
 //        $result['message'] = 'Could not generate Api Repository File';
@@ -207,16 +216,17 @@ class ViewAndLayoutStructure
     }
 
     /**
-     * @param $gridFile
+     * @param $formFile
      * @param $snakeCaseEntityName
      * @param $title
      * @param $entityName
      * @param $vendorNamespaceArr
      * @param $dbColumns
      * @param $frontName
+     * @param bool $oneColumn
      * @return bool
      */
-    public function generateUiFormFile($formFile, $snakeCaseEntityName, $title, $entityName, $vendorNamespaceArr, $dbColumns, $frontName)
+    public function generateUiFormFile($formFile, $snakeCaseEntityName, $title, $entityName, $vendorNamespaceArr, $dbColumns, $frontName, $oneColumn = false)
     {
         if (!$this->filesystemIo->fileExists($formFile)){
             $contents = '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
@@ -231,10 +241,12 @@ class ViewAndLayoutStructure
             $contents .= '            <item name="dataScope" xsi:type="string">data</item>' . PHP_EOL;
             $contents .= '            <item name="namespace" xsi:type="string">' . $snakeCaseEntityName . '_form</item>' . PHP_EOL;
             $contents .= '        </item>' . PHP_EOL;
-            $contents .= '        <item name="layout" xsi:type="array">' . PHP_EOL;
-            $contents .= '            <item name="type" xsi:type="string">tabs</item>' . PHP_EOL;
-            $contents .= '            <item name="navContainerName" xsi:type="string">left</item>' . PHP_EOL;
-            $contents .= '        </item>' . PHP_EOL;
+            if (!$oneColumn) {
+                $contents .= '        <item name="layout" xsi:type="array">' . PHP_EOL;
+                $contents .= '            <item name="type" xsi:type="string">tabs</item>' . PHP_EOL;
+                $contents .= '            <item name="navContainerName" xsi:type="string">left</item>' . PHP_EOL;
+                $contents .= '        </item>' . PHP_EOL;
+            }
             $contents .= '        <item name="buttons" xsi:type="array">' . PHP_EOL;
             $contents .= '            <item name="back" xsi:type="string">' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\Block\\Adminhtml\\' . $entityName . '\\Edit\\BackButton</item>' . PHP_EOL;
             $contents .= '            <item name="delete" xsi:type="string">' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\Block\\Adminhtml\\' . $entityName . '\\Edit\\DeleteButton</item>' . PHP_EOL;
@@ -443,6 +455,9 @@ class ViewAndLayoutStructure
             $contents .= '                <item name="config" xsi:type="array">' . PHP_EOL;
             $contents .= '                    <item name="update_url" xsi:type="url" path="mui/index/render"/>' . PHP_EOL;
             $contents .= '                    <item name="component" xsi:type="string">Magento_Ui/js/grid/provider</item>' . PHP_EOL;
+            $contents .= '                        <item name="storageConfig" xsi:type="array">' . PHP_EOL;
+            $contents .= '                          <item name="indexField" xsi:type="string">id</item>' . PHP_EOL;
+            $contents .= '                        </item>' . PHP_EOL;
             $contents .= '                </item>' . PHP_EOL;
             $contents .= '            </argument>' . PHP_EOL;
             $contents .= '        </argument>' . PHP_EOL;
@@ -451,7 +466,7 @@ class ViewAndLayoutStructure
             $contents .= '        <bookmark name="bookmarks"/>' . PHP_EOL;
             $contents .= '        <columnsControls name="columns_controls"/>' . PHP_EOL;
             $contents .= '        <exportButton name="export_button"/>' . PHP_EOL;
-            $contents .= '        <filterSearch name="fulltext"/>' . PHP_EOL;
+            $contents .= '        <!--<filterSearch name="fulltext"/>-->' . PHP_EOL;
             $contents .= '        <filters name="listing_filters"/>' . PHP_EOL;
             $contents .= '        <paging name="listing_paging"/>' . PHP_EOL;
             $contents .= '    </listingToolbar>' . PHP_EOL;
@@ -497,6 +512,12 @@ class ViewAndLayoutStructure
             $contents .= '            </settings>' . PHP_EOL;
             $contents .= '        </column>' . PHP_EOL;
             $contents .= '        <actionsColumn name="actions" class="' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\Ui\\Component\\Listing\\Column\\Actions">' . PHP_EOL;
+            $contents .= '            <argument name="data" xsi:type="array">' . PHP_EOL;
+            $contents .= '              <item name="config" xsi:type="array">' . PHP_EOL;
+            $contents .= '                  <item name="indexField" xsi:type="string">id</item>' . PHP_EOL;
+            $contents .= '                  <item name="sortOrder" xsi:type="number">200</item>' . PHP_EOL;
+            $contents .= '              </item>' . PHP_EOL;
+            $contents .= '            </argument>' . PHP_EOL;
             $contents .= '            <settings>' . PHP_EOL;
             $contents .= '                <label translate="true">Actions</label>' . PHP_EOL;
             $contents .= '            </settings>' . PHP_EOL;
