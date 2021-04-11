@@ -159,7 +159,7 @@ class BackendControllersStructure
             $contents .= 'use Magento\\Framework\\Exception\\CouldNotDeleteException;' . PHP_EOL;
             $contents .= 'use Magento\\Ui\\Component\\MassAction\\Filter;' . PHP_EOL;
             $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Api' . '\\' . $entityName . 'RepositoryInterface;' . PHP_EOL;
-            $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . $entityName . '\\' . $entityName . 'Factory;' . PHP_EOL;
+            $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . $entityName . 'Factory;' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= 'class MassDelete extends Action' . PHP_EOL;
             $contents .= '{' . PHP_EOL;
@@ -260,8 +260,8 @@ class BackendControllersStructure
             $contents .= 'use Magento\\Framework\\App\\Request\\DataPersistorInterface;' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\Exception\\LocalizedException;' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\Serialize\\Serializer\\JsonFactory as JsonSerializer;' . PHP_EOL;
-            $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . $entityName .'\\' . $entityName . 'Factory;' . PHP_EOL;
-            $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . $entityName .'\\' . $entityName . 'Repository;' . PHP_EOL;
+            $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . $entityName . 'Factory;' . PHP_EOL;
+            $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . $entityName . 'Repository;' . PHP_EOL;
             $contents .='' . PHP_EOL;
             $contents .= 'class Save extends \\Magento\\Backend\\App\\Action' . PHP_EOL;
             $contents .= '{' . PHP_EOL;
@@ -424,7 +424,7 @@ class BackendControllersStructure
             $contents .='' . PHP_EOL;
             $contents .= 'use Magento\\Backend\\App\\Action;' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\Controller\\ResultFactory;' . PHP_EOL;
-            $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . $entityName . '\\' . $entityName . 'Repository;' . PHP_EOL;
+            $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . $entityName . 'Repository;' . PHP_EOL;
             $contents .='' . PHP_EOL;
             $contents .= 'class Edit extends \\Magento\\Backend\\App\\Action' . PHP_EOL;
             $contents .= '{' . PHP_EOL;
@@ -489,8 +489,8 @@ class BackendControllersStructure
             $contents .='' . PHP_EOL;
             $contents .= 'use Magento\\Backend\\App\\Action;' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\Controller\\ResultFactory;' . PHP_EOL;
-            $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . $entityName . '\\' . $entityName . 'Factory;' . PHP_EOL;
-            $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . $entityName . '\\' . $entityName . 'Repository;' . PHP_EOL;
+            $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . $entityName . 'Factory;' . PHP_EOL;
+            $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . $entityName . 'Repository;' . PHP_EOL;
             $contents .='' . PHP_EOL;
             $contents .= 'class Duplicate extends \\Magento\\Backend\\App\\Action' . PHP_EOL;
             $contents .= '{' . PHP_EOL;
@@ -579,8 +579,8 @@ class BackendControllersStructure
             $contents .= 'use Magento\\Backend\\App\\Action\\Context;' . PHP_EOL;
             $contents .= 'use Magento\\Backend\\Model\\View\\Result\\Redirect;' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\Controller\\ResultInterface;' . PHP_EOL;
-            $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . $entityName . '\\' . $entityName . 'Factory;' . PHP_EOL;
-            $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . $entityName . '\\' . $entityName . 'Repository;' . PHP_EOL;
+            $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . $entityName . 'Factory;' . PHP_EOL;
+            $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . $entityName . 'Repository;' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= 'class Delete extends Action' . PHP_EOL;
             $contents .= '{' . PHP_EOL;
