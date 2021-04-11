@@ -314,27 +314,27 @@ class ApiAndModelStructure
      */
     public function generateModelFiles($appFolderPath, $vendorNamespaceArr, $dbColumns, $entityName, $dbName)
     {
-        $modelFolder = $appFolderPath . 'code' . '/' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Model' . '/' . $entityName;
+        $modelFolder = $appFolderPath . 'code' . '/' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Model';
         $modelFileName = $entityName . '.php';
-        if (!$this->generateModelFile($modelFolder, $modelFileName, $dbColumns, $entityName, $dbName,$vendorNamespaceArr)) {
+        if (!$this->generateModelFile($modelFolder, $modelFileName, $dbColumns, $entityName, $dbName, $vendorNamespaceArr)) {
             return false;
         }
         $modelRepositoryFile = $entityName . 'Repository.php';
         if (!$this->generateModelRepositoryFile($modelFolder, $modelRepositoryFile, $entityName, $vendorNamespaceArr)) {
             return false;
         }
-        $resourceModelFolder = $appFolderPath . 'code' . '/' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Model' . '/' . $entityName . '/ResourceModel';
+        $resourceModelFolder = $appFolderPath . 'code' . '/' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Model' . '/ResourceModel';
         $resourceModelFile = $entityName . '.php';
         if (!$this->generateResourceModelFile($resourceModelFolder, $resourceModelFile, $entityName, $dbName,$vendorNamespaceArr)) {
             return false;
         }
-        $resourceModelCollectionFolder = $appFolderPath . 'code' . '/' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Model' . '/' . $entityName .
-            '/ResourceModel' . '/' . $entityName;
+        $resourceModelCollectionFolder = $appFolderPath . 'code' . '/' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Model' . '/ResourceModel'
+            . '/' . $entityName;
         $resourceModelCollectionFile = 'Collection.php';
         if (!$this->generateResourceModelCollectionFile($resourceModelCollectionFolder, $resourceModelCollectionFile, $entityName, $vendorNamespaceArr)) {
             return false;
         }
-        $resourceModelGridCollectionFolder = $appFolderPath . 'code' . '/' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Model' . '/' . $entityName .
+        $resourceModelGridCollectionFolder = $appFolderPath . 'code' . '/' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Model' .
             '/ResourceModel' . '/' . $entityName . '/Grid';
         $resourceModelGridCollectionFile = 'Collection.php';
         if (!$this->generateResourceModelGridCollectionFile($resourceModelGridCollectionFolder, $resourceModelGridCollectionFile, $entityName, $vendorNamespaceArr, $dbName)) {
@@ -365,7 +365,7 @@ class ApiAndModelStructure
         if (!$this->filesystemIo->fileExists($filePath)) {
             $contents = '<?php' . PHP_EOL;
             $contents .= '' . PHP_EOL;
-            $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model\\' . $entityName . '\\' . 'ResourceModel' . '\\' . $entityName . '\\' . 'Grid;' . PHP_EOL;
+            $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model\\' . 'ResourceModel' . '\\' . $entityName . '\\' . 'Grid;' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\Data\\Collection\\Db\\FetchStrategyInterface as FetchStrategy;' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\Data\\Collection\\EntityFactoryInterface as EntityFactory;' . PHP_EOL;
@@ -380,7 +380,7 @@ class ApiAndModelStructure
             $contents .= '        FetchStrategy $fetchStrategy,' . PHP_EOL;
             $contents .= '        EventManager $eventManager,' . PHP_EOL;
             $contents .= '        $mainTable = \'' . $dbName . '\',' . PHP_EOL;
-            $contents .= '        $resourceModel = \'' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model\\' . $entityName . '\\' . 'ResourceModel' . '\\' . $entityName . '\'' . PHP_EOL;
+            $contents .= '        $resourceModel = \'' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model\\' . 'ResourceModel' . '\\' . $entityName . '\'' . PHP_EOL;
             $contents .= '    )' . PHP_EOL;
             $contents .= '    {' . PHP_EOL;
             $contents .= '        parent::__construct(' . PHP_EOL;
@@ -424,11 +424,11 @@ class ApiAndModelStructure
         if (!$this->filesystemIo->fileExists($filePath)) {
             $contents = '<?php' . PHP_EOL;
             $contents .= '' . PHP_EOL;
-            $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model\\' . $entityName . '\\' . 'ResourceModel' . '\\' . $entityName . ';' . PHP_EOL;
+            $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model\\' . 'ResourceModel' . '\\' . $entityName . ';' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= 'use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;' . PHP_EOL;
-            $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model\\' . $entityName . '\\' . $entityName . ';' . PHP_EOL;
-            $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model\\' . $entityName . '\\' . 'ResourceModel' . '\\' . $entityName . ' as ' . $entityName . 'Resource;' . PHP_EOL;
+            $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model\\' . $entityName . ';' . PHP_EOL;
+            $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model\\' . 'ResourceModel' . '\\' . $entityName . ' as ' . $entityName . 'Resource;' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= 'class Collection extends AbstractCollection' . PHP_EOL;
             $contents .= '{' . PHP_EOL;
@@ -471,7 +471,7 @@ class ApiAndModelStructure
         $filePath = $folder . '/' . $file;
         if (!$this->filesystemIo->fileExists($filePath)) {
             $contents = '<?php' . PHP_EOL;
-            $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model\\' . $entityName . '\\' . 'ResourceModel;' . PHP_EOL;
+            $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model\\' . 'ResourceModel;' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\EntityManager\\EntityManager;' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\Model\\AbstractModel;' . PHP_EOL;
@@ -532,7 +532,7 @@ class ApiAndModelStructure
         $filePath = $folder . '/' . $file;
         if (!$this->filesystemIo->fileExists($filePath)) {
             $contents = '<?php' . PHP_EOL;
-            $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model\\' . $entityName . ';' . PHP_EOL;
+            $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model\\' . ';' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\Api\\SearchCriteria\\CollectionProcessorInterface;' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\Api\\SearchCriteriaBuilderFactory;' . PHP_EOL;
@@ -542,8 +542,8 @@ class ApiAndModelStructure
             $contents .= 'use Magento\\Framework\\Stdlib\\DateTime\\TimezoneInterface;' . PHP_EOL;
             $contents .= 'use Magento\\Store\Model\\StoreManagerInterface;' . PHP_EOL;
             $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Api' . '\\' . $entityName . 'RepositoryInterface;' . PHP_EOL;
-            $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . $entityName . '\\' . 'ResourceModel' . '\\' . $entityName . ' as Resource' . $entityName . ';' . PHP_EOL;
-            $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . $entityName . '\\' . 'ResourceModel' . '\\' . $entityName . '\\' . 'CollectionFactory;' . PHP_EOL;
+            $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . 'ResourceModel' . '\\' . $entityName . ' as Resource' . $entityName . ';' . PHP_EOL;
+            $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . 'ResourceModel' . '\\' . $entityName . '\\' . 'CollectionFactory;' . PHP_EOL;
             $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Api\\Data;' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= 'class ' . $entityName . 'Repository implements ' . $entityName . 'RepositoryInterface' . PHP_EOL;
@@ -723,7 +723,7 @@ class ApiAndModelStructure
         $filePath = $folder . '/' . $file;
         if (!$this->filesystemIo->fileExists($filePath)) {
             $contents = '<?php' . PHP_EOL;
-            $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model\\' . $entityName . ';' . PHP_EOL;
+            $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . ';' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\Model\\AbstractModel;' . PHP_EOL;
             $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Api\\Data\\' . $entityName . 'Interface;' . PHP_EOL;
@@ -734,7 +734,7 @@ class ApiAndModelStructure
             $contents .= '' . PHP_EOL;
             $contents .= '    protected function _construct()' . PHP_EOL;
             $contents .= '    {' . PHP_EOL;
-            $contents .= '        $this->_init(\\' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model\\' . $entityName . '\\ResourceModel\\' . $entityName . '::class);' . PHP_EOL;
+            $contents .= '        $this->_init(\\' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model\\' . '\\ResourceModel\\' . $entityName . '::class);' . PHP_EOL;
             $contents .= '    }' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= '    /**' .PHP_EOL;
