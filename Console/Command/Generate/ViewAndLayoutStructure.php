@@ -512,12 +512,6 @@ class ViewAndLayoutStructure
             $contents .= '            </settings>' . PHP_EOL;
             $contents .= '        </column>' . PHP_EOL;
             $contents .= '        <actionsColumn name="actions" class="' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\Ui\\Component\\Listing\\Column\\Actions">' . PHP_EOL;
-            $contents .= '            <argument name="data" xsi:type="array">' . PHP_EOL;
-            $contents .= '              <item name="config" xsi:type="array">' . PHP_EOL;
-            $contents .= '                  <item name="indexField" xsi:type="string">id</item>' . PHP_EOL;
-            $contents .= '                  <item name="sortOrder" xsi:type="number">200</item>' . PHP_EOL;
-            $contents .= '              </item>' . PHP_EOL;
-            $contents .= '            </argument>' . PHP_EOL;
             $contents .= '            <settings>' . PHP_EOL;
             $contents .= '                <label translate="true">Actions</label>' . PHP_EOL;
             $contents .= '            </settings>' . PHP_EOL;
