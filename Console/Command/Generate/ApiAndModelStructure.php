@@ -225,11 +225,11 @@ class ApiAndModelStructure
             foreach ($dbColumns as $column) {
                 $contents .= '    const ' . strtoupper($column['name']) . ' = "' . $column['name'] . '";' . PHP_EOL;
             }
-//            $contents .= '' . PHP_EOL;
-//            $contents .= '    /**' . PHP_EOL;
-//            $contents .= '     * @return null|int' . PHP_EOL;
-//            $contents .= '     */' . PHP_EOL;
-//            $contents .= '    public function getId(): ?int;' . PHP_EOL;
+            $contents .= '' . PHP_EOL;
+            $contents .= '    /**' . PHP_EOL;
+            $contents .= '     * @return mixed' . PHP_EOL;
+            $contents .= '     */' . PHP_EOL;
+            $contents .= '    public function getId();' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
             $contents .= '     * @return null|int' . PHP_EOL;
@@ -260,12 +260,12 @@ class ApiAndModelStructure
                 $contents .= '' . PHP_EOL;
             }
             //defining setters
-//            $contents .= '    /**' . PHP_EOL;
-//            $contents .= '     * @param null|int $id' . PHP_EOL;
-//            $contents .= '     * @return void' . PHP_EOL;
-//            $contents .= '     */' . PHP_EOL;
-//            $contents .= '    public function setId(?int $id): void;' . PHP_EOL;
-//            $contents .= '' . PHP_EOL;
+            $contents .= '    /**' . PHP_EOL;
+            $contents .= '     * @param mixed $id' . PHP_EOL;
+            $contents .= '     * @return mixed' . PHP_EOL;
+            $contents .= '     */' . PHP_EOL;
+            $contents .= '    public function setId($id);' . PHP_EOL;
+            $contents .= '' . PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
             $contents .= '     * @param null|int $storeId' . PHP_EOL;
             $contents .= '     * @return void' . PHP_EOL;
