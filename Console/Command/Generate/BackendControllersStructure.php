@@ -93,7 +93,7 @@ class BackendControllersStructure
             $result['message'] = 'Could not create menu.xml file';
             return $result;
         }
-        if (!$this->generateIndexIndexController($appFolderPath, $vendorNamespaceArr)) {
+        if (!$this->generateIndexIndexController($appFolderPath, $vendorNamespaceArr, $entityName)) {
             $result['success'] = false;
             $result['message'] = 'Could not create Index/Index.php file';
             return $result;
@@ -447,7 +447,7 @@ class BackendControllersStructure
             $contents .= '        $id = $this->getRequest()->getParam(\'id\');' . PHP_EOL;
             $contents .= '        ($id) ? $' . $lowerCamelCaseEntityName . ' = $this->' . $lowerCamelCaseEntityName . 'Repository->getById($id) : $' . $lowerCamelCaseEntityName . ' = null;' . PHP_EOL;
             $contents .= '        $resultPage = $this->resultFactory->create(ResultFactory::TYPE_PAGE);' . PHP_EOL;
-            $contents .= '        $resultPage->getConfig()->getTitle()->prepend($' . $lowerCamelCaseEntityName . ' ? $' . $lowerCamelCaseEntityName . '->getTitle() : __(\'Edit ' . $entityName . '\'));' . PHP_EOL;
+            $contents .= '        $resultPage->getConfig()->getTitle()->prepend($' . $lowerCamelCaseEntityName . '->getTitle() ?: __(\'Edit ' . $title . '\'));' . PHP_EOL;
             $contents .= '        return $resultPage;' . PHP_EOL;
             $contents .= '    }' . PHP_EOL;
             $contents .= '}' . PHP_EOL;
@@ -693,7 +693,7 @@ class BackendControllersStructure
      * @param $vendorNamespaceArr
      * @return bool
      */
-    public function generateIndexIndexController($appFolderPath, $vendorNamespaceArr)
+    public function generateIndexIndexController($appFolderPath, $vendorNamespaceArr, $entityName)
     {
         $controllerIndexFolder = $appFolderPath . 'code' . '/' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Controller/Adminhtml/Index';
         try {
@@ -720,7 +720,13 @@ class BackendControllersStructure
             $contents .= '{' . PHP_EOL;
             $contents .= '    public function execute()' . PHP_EOL;
             $contents .= '    {' . PHP_EOL;
-            $contents .= '        return $this->resultFactory->create(ResultFactory::TYPE_PAGE);' . PHP_EOL;
+
+            $snakeCaseEntityName = $this->helper->convertToSnakeCase($entityName);
+            $title = ucwords(str_replace('_', ' ', $snakeCaseEntityName));
+
+            $contents .= '        $resultPage = $this->resultFactory->create(ResultFactory::TYPE_PAGE);' . PHP_EOL;
+            $contents .= '        $resultPage->getConfig()->getTitle()->prepend(__(\'' . $title . '\'));' . PHP_EOL;
+            $contents .= '        return $resultPage;' . PHP_EOL;
             $contents .= '    }' . PHP_EOL;
             $contents .= '}' . PHP_EOL;
             if ($this->filesystemIo->write($indexFile, $contents)) {
