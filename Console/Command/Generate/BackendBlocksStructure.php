@@ -216,7 +216,7 @@ class BackendBlocksStructure
             $contents .= '' . PHP_EOL;
             $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Block' . '\\' . 'Adminhtml' . '\\' . $entityName . '\\' . 'Edit;' . PHP_EOL;
             $contents .= '' . PHP_EOL;
-            $contents .= 'use Magento\\Framework\\Exception\\LocalizedException' . PHP_EOL;
+            $contents .= 'use Magento\\Framework\\Exception\\LocalizedException;' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\View\\Element\\UiComponent\\Control\\ButtonProviderInterface;' . PHP_EOL;
             $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Block' . '\\' . 'Adminhtml' . '\\' . $entityName . '\\' . 'Edit' . '\\' . 'GenericButton as CustomGenericButton;' . PHP_EOL;
             $contents .= '' . PHP_EOL;
