@@ -2,7 +2,7 @@
   "name": "codebaby/code-generator",
   "description": "Module created to automate some code generation for Magento 2",
   "type": "magento2-module",
-  "version": "1.0.0",
+  "version": "1.0.5",
   "authors": [
     {
       "name": "Cadu Higueras",
@@ -16,7 +16,7 @@
     "AFL-3.0"
   ],
   "require": {
-    "php": "~5.5.0|~5.6.0|~7.0.0|~7.1.0|~7.2.0|~7.3.0|~7.4.0",
+    "php": ">=5.5",
     "magento/magento-composer-installer": "*",
     "magento/framework": "*"
   },
