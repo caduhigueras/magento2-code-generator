@@ -218,8 +218,8 @@ class ApiAndModelStructure
             $contents .= '' . PHP_EOL;
             $contents .= 'interface ' . $entityName . 'Interface' . PHP_EOL;
             $contents .= '{' . PHP_EOL;
-            $contents .= '    const ' . strtoupper($this->helper->convertToSnakeCase($entityName)) . '_ID = "id" ;' . PHP_EOL;
-            $contents .= '    const ' . strtoupper($this->helper->convertToSnakeCase($entityName)) . '_TABLE = "' . $dbName . '" ;' . PHP_EOL;
+            $contents .= '    const ' . strtoupper($this->helper->convertToSnakeCase($entityName)) . '_ID = "id";' . PHP_EOL;
+            $contents .= '    const ' . strtoupper($this->helper->convertToSnakeCase($entityName)) . '_TABLE = "' . $dbName . '";' . PHP_EOL;
             $contents .= '    const STORE_ID = "store_id" ;' . PHP_EOL;
             //start iterating the columns to declare the constants
             foreach ($dbColumns as $column) {
