@@ -220,7 +220,7 @@ class ApiAndModelStructure
             $contents .= '{' . PHP_EOL;
             $contents .= '    const ' . strtoupper($this->helper->convertToSnakeCase($entityName)) . '_ID = "id";' . PHP_EOL;
             $contents .= '    const ' . strtoupper($this->helper->convertToSnakeCase($entityName)) . '_TABLE = "' . $dbName . '";' . PHP_EOL;
-            $contents .= '    const STORE_ID = "store_id" ;' . PHP_EOL;
+            $contents .= '    const STORE_ID = "store_id";' . PHP_EOL;
             //start iterating the columns to declare the constants
             foreach ($dbColumns as $column) {
                 $contents .= '    const ' . strtoupper($column['name']) . ' = "' . $column['name'] . '";' . PHP_EOL;
@@ -557,6 +557,7 @@ class ApiAndModelStructure
             $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . ';' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\Api\\SearchCriteria\\CollectionProcessorInterface;' . PHP_EOL;
+            $contents .= 'use Magento\Framework\Api\SearchCriteriaBuilder;' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\Api\\SearchCriteriaBuilderFactory;' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\Exception\\CouldNotDeleteException;' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\Exception\\CouldNotSaveException;' . PHP_EOL;
@@ -577,7 +578,8 @@ class ApiAndModelStructure
             $contents .= '    private TimezoneInterface $timezone;' . PHP_EOL;
             $contents .= '    private CollectionProcessorInterface $collectionProcessor;' . PHP_EOL;
             $contents .= '    private Data\\' . $entityName . 'SearchResultsInterfaceFactory' . ' $searchResultsFactory;' . PHP_EOL;
-            $contents .= '    private SearchCriteriaBuilderFactory $searchCriteriaBuilder;' . PHP_EOL;
+            $contents .= '    private SearchCriteriaBuilderFactory $searchCriteriaBuilderFactory;' . PHP_EOL;
+            $contents .= '    private SearchCriteriaBuilder $searchCriteriaBuilder;' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
             $contents .= '     * ' . $entityName . 'Repository constructor.' . PHP_EOL;
@@ -587,7 +589,7 @@ class ApiAndModelStructure
             $contents .= '     * @param TimezoneInterface $timezone' . PHP_EOL;
             $contents .= '     * @param Data\\' . $entityName . 'SearchResultsInterfaceFactory $searchResultsFactory' . PHP_EOL;
             $contents .= '     * @param CollectionProcessorInterface|null $collectionProcessor' . PHP_EOL;
-            $contents .= '     * @param SearchCriteriaBuilderFactory $searchCriteriaBuilder' . PHP_EOL;
+            $contents .= '     * @param SearchCriteriaBuilderFactory $searchCriteriaBuilderFactory' . PHP_EOL;
             $contents .= '     */' . PHP_EOL;
             $contents .= '    public function __construct(' . PHP_EOL;
             $contents .= '        ' . $entityName . 'Factory $' . $this->helper->convertToLowerCamelCase($entityName) . 'Factory,' . PHP_EOL;
@@ -597,7 +599,7 @@ class ApiAndModelStructure
             $contents .= '        TimezoneInterface $timezone,' . PHP_EOL;
             $contents .= '        Data\\' . $entityName . 'SearchResultsInterfaceFactory $searchResultsFactory,' . PHP_EOL;
             $contents .= '        CollectionProcessorInterface $collectionProcessor,' . PHP_EOL;
-            $contents .= '        SearchCriteriaBuilderFactory $searchCriteriaBuilder' . PHP_EOL;
+            $contents .= '        SearchCriteriaBuilderFactory $searchCriteriaBuilderFactory' . PHP_EOL;
             $contents .= '    ) {' . PHP_EOL;
             $contents .= '        $this->resource = $resource;' . PHP_EOL;
             $contents .= '        $this->' . $this->helper->convertToLowerCamelCase($entityName) . 'Factory = $' . $this->helper->convertToLowerCamelCase($entityName) . 'Factory;' . PHP_EOL;
@@ -606,7 +608,7 @@ class ApiAndModelStructure
             $contents .= '        $this->timezone = $timezone;' . PHP_EOL;
             $contents .= '        $this->collectionProcessor = $collectionProcessor;' . PHP_EOL;
             $contents .= '        $this->searchResultsFactory = $searchResultsFactory;' . PHP_EOL;
-            $contents .= '        $this->searchCriteriaBuilder = $searchCriteriaBuilder->create();' . PHP_EOL;
+            $contents .= '        $this->searchCriteriaBuilder = $searchCriteriaBuilderFactory->create();' . PHP_EOL;
             $contents .= '    }' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
@@ -641,7 +643,7 @@ class ApiAndModelStructure
             $contents .= '     */' . PHP_EOL;
             $contents .= '    public function save(Data\\' . $entityName . 'Interface $' . $this->helper->convertToLowerCamelCase($entityName) . '): Data\\' . $entityName . 'Interface' . PHP_EOL;
             $contents .= '    {' . PHP_EOL;
-            $contents .= '        if (empty($' . $this->helper->convertToLowerCamelCase($entityName) . '->getStoreId())) {' . PHP_EOL;
+            $contents .= '        if (empty($' . $this->helper->convertToLowerCamelCase($entityName) . '->getStoreId())  && $customForm->getStoreId() !== "0") {' . PHP_EOL;
             $contents .= '            $' . $this->helper->convertToLowerCamelCase($entityName) . '->setStoreId($this->storeManager->getStore()->getId());' . PHP_EOL;
             $contents .= '        }' . PHP_EOL;
             $contents .= '' . PHP_EOL;
