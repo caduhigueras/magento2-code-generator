@@ -202,7 +202,7 @@ class ViewAndLayoutStructure
                 $result['message'] = 'Could not generate Ui Form Xml File';
                 return $result;
             }
-         }else {
+        } else {
             /** Generate UI Form with 1 columns */
             if (!$this->generateUiFormFile($formFile, $snakeCaseEntityName, $title, $entityName, $vendorNamespaceArr, $dbColumns, $frontName, true)) {
                 $result['success'] = false;
@@ -260,7 +260,6 @@ class ViewAndLayoutStructure
             $contents .= '            <argument name="name" xsi:type="string">' . $snakeCaseEntityName . '_form_data_source</argument>' . PHP_EOL;
             $contents .= '            <argument name="primaryFieldName" xsi:type="string">id</argument>' . PHP_EOL;
             $contents .= '            <argument name="requestFieldName" xsi:type="string">id</argument>' . PHP_EOL;
-            $contents .= '            <!--            <argument name="collectionFactory" xsi:type="object">' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\Model\\' . $entityName . '\\ResourceModel\\' . $entityName . '\\CollectionFactory</argument>-->' . PHP_EOL;
             $contents .= '            <argument name="data" xsi:type="array">' . PHP_EOL;
             $contents .= '                <item name="config" xsi:type="array">' . PHP_EOL;
             $contents .= '                    <item name="submit_url" xsi:type="url" path="' . $frontName . '/' . strtolower($entityName) . '/save"/>' . PHP_EOL;
@@ -518,7 +517,7 @@ class ViewAndLayoutStructure
             $contents .= '        </actionsColumn>' . PHP_EOL;
             $contents .= '    </columns>' . PHP_EOL;
             $contents .= '</listing>' . PHP_EOL;
-        if ($this->filesystemIo->write($gridFile, $contents)) {
+            if ($this->filesystemIo->write($gridFile, $contents)) {
                 return true;
             }
             return false;
