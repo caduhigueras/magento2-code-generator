@@ -93,7 +93,7 @@ class BackendControllersStructure
             $result['message'] = 'Could not create menu.xml file';
             return $result;
         }
-        if (!$this->generateIndexIndexController($appFolderPath, $vendorNamespaceArr)) {
+        if (!$this->generateIndexIndexController($appFolderPath, $vendorNamespaceArr, $entityName)) {
             $result['success'] = false;
             $result['message'] = 'Could not create Index/Index.php file';
             return $result;
@@ -257,64 +257,51 @@ class BackendControllersStructure
             $contents .='' . PHP_EOL;
             $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Controller' . '\\' . 'Adminhtml' . '\\' . $entityName . ';' . PHP_EOL;
             $contents .='' . PHP_EOL;
-            $contents .= 'use Magento\\Framework\\App\\Request\\DataPersistorInterface;' . PHP_EOL;
-            $contents .= 'use Magento\\Framework\\Exception\\LocalizedException;' . PHP_EOL;
-            $contents .= 'use Magento\\Framework\\Serialize\\Serializer\\JsonFactory as JsonSerializer;' . PHP_EOL;
-            $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . $entityName . 'Factory;' . PHP_EOL;
-            $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . $entityName . 'Repository;' . PHP_EOL;
+            $contents .= 'use Magento\Backend\App\Action\Context;' . PHP_EOL;
+            $contents .= 'use Magento\Backend\Model\View\Result\Redirect;' . PHP_EOL;
+            $contents .= 'use Magento\Framework\App\Request\DataPersistorInterface;' . PHP_EOL;
+            $contents .= 'use Magento\Framework\App\ResponseInterface;' . PHP_EOL;
+            $contents .= 'use Magento\Framework\Controller\ResultInterface;' . PHP_EOL;
+            $contents .= 'use Magento\Framework\Exception\LocalizedException;' . PHP_EOL;
+            $contents .= 'use Magento\Framework\Serialize\SerializerInterface;' . PHP_EOL;
+            $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . $entityName . 'Factory;' . PHP_EOL;
+            $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . $entityName . 'Repository;' . PHP_EOL;
             $contents .='' . PHP_EOL;
             $contents .= 'class Save extends \\Magento\\Backend\\App\\Action' . PHP_EOL;
             $contents .= '{' . PHP_EOL;
             $contents .= '    const ADMIN_RESOURCE = \'' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '::' . $snakeCaseEntityName . '\';' . PHP_EOL;
             $contents .='' . PHP_EOL;
-            $contents .= '    /**' . PHP_EOL;
-            $contents .= '     * @var ' . $entityName . 'Factory' . PHP_EOL;
-            $contents .= '     */' . PHP_EOL;
-            $contents .= '    private $' . $lowerCamelCaseEntityName . 'Factory;' . PHP_EOL;
-            $contents .='' . PHP_EOL;
-//            $contents .= '    /**' . PHP_EOL;
-//            $contents .= '     * @var FileProcessor' . PHP_EOL;
-//            $contents .= '     */' . PHP_EOL;
-//            $contents .= '    private $fileProcessor;' . PHP_EOL;
+            $contents .= '    private ' . $entityName . 'Factory $' . $lowerCamelCaseEntityName . 'Factory;' . PHP_EOL;
+            $contents .= '    private ' . $entityName . 'Repository $' . $lowerCamelCaseEntityName . 'Repository;' . PHP_EOL;
+            $contents .= '    private DataPersistorInterface $dataPersistor;' . PHP_EOL;
+            $contents .= '    private Context $context;' . PHP_EOL;
+            $contents .= '    private SerializerInterface $json;' . PHP_EOL;
             $contents .='' . PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
-            $contents .= '     * @var JsonSerializer' . PHP_EOL;
+            $contents .= '     * @param Context $context' . PHP_EOL;
+            $contents .= '     * @param ' . $entityName . 'Factory $' . $lowerCamelCaseEntityName . 'Factory' . PHP_EOL;
+            $contents .= '     * @param ' . $entityName . 'Repository $' . $lowerCamelCaseEntityName . 'Repository' . PHP_EOL;
+            $contents .= '     * @param DataPersistorInterface $dataPersistor' . PHP_EOL;
+            $contents .= '     * @param SerializerInterface $json' . PHP_EOL;
             $contents .= '     */' . PHP_EOL;
-            $contents .= '    private $json;' . PHP_EOL;
-            $contents .='' . PHP_EOL;
-            $contents .= '    /**' . PHP_EOL;
-            $contents .= '     * @var ' . $entityName . 'Repository' . PHP_EOL;
-            $contents .= '     */' . PHP_EOL;
-            $contents .= '    protected $' . $lowerCamelCaseEntityName . 'Repository;' . PHP_EOL;
-            $contents .='' . PHP_EOL;
-            $contents .= '    /**' . PHP_EOL;
-            $contents .= '     * @var DataPersistorInterface' . PHP_EOL;
-            $contents .= '     */' . PHP_EOL;
-            $contents .= '    protected $dataPersistor;' . PHP_EOL;
-            $contents .='' . PHP_EOL;
-            $contents .= '    /**' . PHP_EOL;
-            $contents .= '     * @var \Magento\Backend\App\Action\Context' . PHP_EOL;
-            $contents .= '     */' . PHP_EOL;
-            $contents .= '    private $context;' . PHP_EOL;
-            $contents .='' . PHP_EOL;
             $contents .= '    public function __construct(' . PHP_EOL;
-//            $contents .= '        FileProcessor $fileProcessor,' . PHP_EOL;
-            $contents .= '        \Magento\Backend\App\Action\Context $context,' . PHP_EOL;
+            $contents .= '        Context $context,' . PHP_EOL;
             $contents .= '        ' . $entityName . 'Factory $' . $lowerCamelCaseEntityName . 'Factory,' . PHP_EOL;
             $contents .= '        ' . $entityName . 'Repository $' . $lowerCamelCaseEntityName . 'Repository,' . PHP_EOL;
             $contents .= '        DataPersistorInterface $dataPersistor,' . PHP_EOL;
-            $contents .= '        JsonSerializer $json' . PHP_EOL;
-            $contents .= '    )' . PHP_EOL;
-            $contents .= '    {' . PHP_EOL;
+            $contents .= '        SerializerInterface $json' . PHP_EOL;
+            $contents .= '    ) {' . PHP_EOL;
             $contents .= '        $this->context = $context;' . PHP_EOL;
             $contents .= '        $this->' . $lowerCamelCaseEntityName . 'Factory = $' . $lowerCamelCaseEntityName . 'Factory;' . PHP_EOL;
-//            $contents .= '        $this->fileProcessor = $fileProcessor;' . PHP_EOL;
-            $contents .= '        $this->json = $json->create();' . PHP_EOL;
             $contents .= '        $this->' . $lowerCamelCaseEntityName . 'Repository = $' . $lowerCamelCaseEntityName . 'Repository;' . PHP_EOL;
+            $contents .= '        $this->json = $json;' . PHP_EOL;
             $contents .= '        $this->dataPersistor = $dataPersistor;' . PHP_EOL;
             $contents .= '        parent::__construct($context);' . PHP_EOL;
             $contents .= '    }' . PHP_EOL;
             $contents .='' . PHP_EOL;
+            $contents .= '    /**' . PHP_EOL;
+            $contents .= '     * @return Redirect|ResultInterface|ResponseInterface' . PHP_EOL;
+            $contents .= '     */' . PHP_EOL;
             $contents .= '    public function execute()' . PHP_EOL;
             $contents .= '    {' . PHP_EOL;
             $contents .= '        /** @var \Magento\Backend\Model\View\Result\Redirect $resultRedirect */' . PHP_EOL;
@@ -422,18 +409,21 @@ class BackendControllersStructure
             $contents .='' . PHP_EOL;
             $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Controller' . '\\' . 'Adminhtml' . '\\' . $entityName . ';' . PHP_EOL;
             $contents .='' . PHP_EOL;
-            $contents .= 'use Magento\\Backend\\App\\Action;' . PHP_EOL;
-            $contents .= 'use Magento\\Framework\\Controller\\ResultFactory;' . PHP_EOL;
+            $contents .= 'use Magento\Backend\App\Action;' . PHP_EOL;
+            $contents .= 'use Magento\Framework\App\ResponseInterface;' . PHP_EOL;
+            $contents .= 'use Magento\Framework\Controller\ResultFactory;' . PHP_EOL;
+            $contents .= 'use Magento\Framework\Controller\ResultInterface;' . PHP_EOL;
+            $contents .= 'use Magento\Framework\Exception\NoSuchEntityException;' . PHP_EOL;
             $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . $entityName . 'Repository;' . PHP_EOL;
             $contents .='' . PHP_EOL;
             $contents .= 'class Edit extends \\Magento\\Backend\\App\\Action' . PHP_EOL;
             $contents .= '{' . PHP_EOL;
             $contents .= '    const ADMIN_RESOURCE = \'' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '::' . $snakeCaseEntityName . '\';' . PHP_EOL;
             $contents .='' . PHP_EOL;
-            $contents .= '    /**' . PHP_EOL;
-            $contents .= '     * @var ' . $entityName . 'Repository' . PHP_EOL;
-            $contents .= '     */' . PHP_EOL;
-            $contents .= '    protected $' . $lowerCamelCaseEntityName . 'Repository;' . PHP_EOL;
+//            $contents .= '    /**' . PHP_EOL;
+//            $contents .= '     * @var ' . $entityName . 'Repository' . PHP_EOL;
+//            $contents .= '     */' . PHP_EOL;
+            $contents .= '    protected ' . $entityName . 'Repository $' . $lowerCamelCaseEntityName . 'Repository;' . PHP_EOL;
             $contents .='' . PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
             $contents .= '     * Edit constructor.' . PHP_EOL;
@@ -443,18 +433,21 @@ class BackendControllersStructure
             $contents .= '    public function __construct(' . PHP_EOL;
             $contents .= '        ' . $entityName . 'Repository $' . $lowerCamelCaseEntityName . 'Repository,' . PHP_EOL;
             $contents .= '        Action\Context $context' . PHP_EOL;
-            $contents .= '    )' . PHP_EOL;
-            $contents .= '    {' . PHP_EOL;
+            $contents .= '    ) {' . PHP_EOL;
             $contents .= '        $this->' . $lowerCamelCaseEntityName . 'Repository = $' . $lowerCamelCaseEntityName . 'Repository;' . PHP_EOL;
             $contents .= '        parent::__construct($context);' . PHP_EOL;
             $contents .= '    }' . PHP_EOL;
             $contents .='' . PHP_EOL;
+            $contents .= '    /**' . PHP_EOL;
+            $contents .= '     * @return ResultInterface|ResponseInterface' . PHP_EOL;
+            $contents .= '     * @throws NoSuchEntityException' . PHP_EOL;
+            $contents .= '     */' . PHP_EOL;
             $contents .= '    public function execute()' . PHP_EOL;
             $contents .= '    {' . PHP_EOL;
             $contents .= '        $id = $this->getRequest()->getParam(\'id\');' . PHP_EOL;
             $contents .= '        ($id) ? $' . $lowerCamelCaseEntityName . ' = $this->' . $lowerCamelCaseEntityName . 'Repository->getById($id) : $' . $lowerCamelCaseEntityName . ' = null;' . PHP_EOL;
             $contents .= '        $resultPage = $this->resultFactory->create(ResultFactory::TYPE_PAGE);' . PHP_EOL;
-            $contents .= '        $resultPage->getConfig()->getTitle()->prepend($' . $lowerCamelCaseEntityName . ' ? $' . $lowerCamelCaseEntityName . '->getTitle() : __(\'Edit ' . $entityName . '\'));' . PHP_EOL;
+            $contents .= '        $resultPage->getConfig()->getTitle()->prepend($' . $lowerCamelCaseEntityName . '->getTitle() ?: __(\'Edit ' . $title . '\'));' . PHP_EOL;
             $contents .= '        return $resultPage;' . PHP_EOL;
             $contents .= '    }' . PHP_EOL;
             $contents .= '}' . PHP_EOL;
@@ -488,7 +481,12 @@ class BackendControllersStructure
             $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Controller' . '\\' . 'Adminhtml' . '\\' . $entityName . ';' . PHP_EOL;
             $contents .='' . PHP_EOL;
             $contents .= 'use Magento\\Backend\\App\\Action;' . PHP_EOL;
+            $contents .= 'use Magento\Framework\App\ResponseInterface;' . PHP_EOL;
+            $contents .= 'use Magento\Framework\Controller\Result\Redirect;' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\Controller\\ResultFactory;' . PHP_EOL;
+            $contents .= 'use Magento\Framework\Controller\ResultInterface;' . PHP_EOL;
+            $contents .= 'use Magento\Framework\Exception\CouldNotSaveException;' . PHP_EOL;
+            $contents .= 'use Magento\Framework\Exception\NoSuchEntityException;' . PHP_EOL;
             $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . $entityName . 'Factory;' . PHP_EOL;
             $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . $entityName . 'Repository;' . PHP_EOL;
             $contents .='' . PHP_EOL;
@@ -496,14 +494,14 @@ class BackendControllersStructure
             $contents .= '{' . PHP_EOL;
             $contents .= '    const ADMIN_RESOURCE = \'' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '::' . $snakeCaseEntityName . '\';' . PHP_EOL;
             $contents .='' . PHP_EOL;
-            $contents .= '    /**' . PHP_EOL;
-            $contents .= '     * @var ' . $entityName . 'Factory' . PHP_EOL;
-            $contents .= '     */' . PHP_EOL;
-            $contents .= '    protected $' . $lowerCamelCaseEntityName . 'Factory;' . PHP_EOL;
-            $contents .= '    /**' . PHP_EOL;
-            $contents .= '     * @var ' . $entityName . 'Repository' . PHP_EOL;
-            $contents .= '     */' . PHP_EOL;
-            $contents .= '    protected $' . $lowerCamelCaseEntityName . 'Repository;' . PHP_EOL;
+//            $contents .= '    /**' . PHP_EOL;
+//            $contents .= '     * @var ' . $entityName . 'Factory' . PHP_EOL;
+//            $contents .= '     */' . PHP_EOL;
+            $contents .= '    protected ' . $entityName . 'Factory $' . $lowerCamelCaseEntityName . 'Factory;' . PHP_EOL;
+//            $contents .= '    /**' . PHP_EOL;
+//            $contents .= '     * @var ' . $entityName . 'Repository' . PHP_EOL;
+//            $contents .= '     */' . PHP_EOL;
+            $contents .= '    protected ' . $entityName . 'Repository $' . $lowerCamelCaseEntityName . 'Repository;' . PHP_EOL;
             $contents .='' . PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
             $contents .= '     * Edit constructor.' . PHP_EOL;
@@ -523,9 +521,9 @@ class BackendControllersStructure
             $contents .= '    }' . PHP_EOL;
             $contents .='' . PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
-            $contents .= '     * @return \Magento\Framework\App\ResponseInterface|\Magento\Framework\Controller\Result\Redirect|\Magento\Framework\Controller\ResultInterface' . PHP_EOL;
-            $contents .= '     * @throws \Magento\Framework\Exception\CouldNotSaveException' . PHP_EOL;
-            $contents .= '     * @throws \Magento\Framework\Exception\NoSuchEntityException' . PHP_EOL;
+            $contents .= '     * @return ResponseInterface|Redirect|ResultInterface' . PHP_EOL;
+            $contents .= '     * @throws CouldNotSaveException' . PHP_EOL;
+            $contents .= '     * @throws NoSuchEntityException' . PHP_EOL;
             $contents .= '     */' . PHP_EOL;
             $contents .= '    public function execute()' . PHP_EOL;
             $contents .= '    {' . PHP_EOL;
@@ -586,15 +584,8 @@ class BackendControllersStructure
             $contents .= '{' . PHP_EOL;
             $contents .= '    const ADMIN_RESOURCE = \'' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '::' . $snakeCaseEntityName . '\';' . PHP_EOL;
             $contents .= '' . PHP_EOL;
-            $contents .= '    /**' . PHP_EOL;
-            $contents .= '     * @var ' . $entityName . 'Factory' . PHP_EOL;
-            $contents .= '     */' . PHP_EOL;
-            $contents .= '    protected $' . $lowerCamelCaseEntityName . 'Factory;' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
-            $contents .= '    /**' . PHP_EOL;
-            $contents .= '     * @var ' . $entityName . 'Repository' . PHP_EOL;
-            $contents .= '     */' . PHP_EOL;
-            $contents .= '    private $' . $lowerCamelCaseEntityName . 'Repository;' . PHP_EOL;
+            $contents .= '    private ' . $entityName . 'Factory $' . $lowerCamelCaseEntityName . 'Factory;' . PHP_EOL;
+            $contents .= '    private ' . $entityName . 'Repository $' . $lowerCamelCaseEntityName . 'Repository;' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
             $contents .= '     * Delete constructor.' . PHP_EOL;
@@ -614,7 +605,7 @@ class BackendControllersStructure
             $contents .= '     *' . PHP_EOL;
             $contents .= '     * @return ResultInterface' . PHP_EOL;
             $contents .= '     */' . PHP_EOL;
-            $contents .= '    public function execute()' . PHP_EOL;
+            $contents .= '    public function execute(): ResultInterface' . PHP_EOL;
             $contents .= '    {' . PHP_EOL;
             $contents .= '        $id = $this->getRequest()->getParam(\'id\');' . PHP_EOL;
             $contents .= '        /** @var Redirect $resultRedirect */' . PHP_EOL;
@@ -634,9 +625,9 @@ class BackendControllersStructure
             $contents .= '    }' . PHP_EOL;
             $contents .= '}' . PHP_EOL;
             $contents .= '' . PHP_EOL;
-        if ($this->filesystemIo->write($controllerFile, $contents)) {
-            return true;
-        }
+            if ($this->filesystemIo->write($controllerFile, $contents)) {
+                return true;
+            }
             return false;
         } else {
             //TODO: define action when file already exists
@@ -668,12 +659,17 @@ class BackendControllersStructure
             $contents .= '' . PHP_EOL;
             $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Controller' . '\\' . 'Adminhtml' . '\\' . $entityName . ';' . PHP_EOL;
             $contents .= '' . PHP_EOL;
-            $contents .= 'use Magento\\Framework\\Controller\\ResultFactory;' . PHP_EOL;
+            $contents .= 'use Magento\Framework\App\ResponseInterface;' . PHP_EOL;
+            $contents .= 'use Magento\Framework\Controller\ResultFactory;' . PHP_EOL;
+            $contents .= 'use Magento\Framework\Controller\ResultInterface;' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= 'class Add extends \\Magento\\Backend\\App\\Action' . PHP_EOL;
             $contents .= '{' . PHP_EOL;
             $contents .= '    const ADMIN_RESOURCE = \'' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '::' . $snakeCaseEntityName . '\';' . PHP_EOL;
             $contents .= '' . PHP_EOL;
+            $contents .= '    /**' . PHP_EOL;
+            $contents .= '     * @return ResultInterface|ResponseInterface' . PHP_EOL;
+            $contents .= '     */' . PHP_EOL;
             $contents .= '    public function execute()' . PHP_EOL;
             $contents .= '    {' . PHP_EOL;
             $contents .= '        $resultPage = $this->resultFactory->create(ResultFactory::TYPE_PAGE);' . PHP_EOL;
@@ -697,7 +693,7 @@ class BackendControllersStructure
      * @param $vendorNamespaceArr
      * @return bool
      */
-    public function generateIndexIndexController($appFolderPath, $vendorNamespaceArr)
+    public function generateIndexIndexController($appFolderPath, $vendorNamespaceArr, $entityName)
     {
         $controllerIndexFolder = $appFolderPath . 'code' . '/' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Controller/Adminhtml/Index';
         try {
@@ -713,13 +709,24 @@ class BackendControllersStructure
             $contents .= '' . PHP_EOL;
             $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Controller\\Adminhtml\\Index;' . PHP_EOL;
             $contents .= '' . PHP_EOL;
+            $contents .= 'use Magento\\Framework\\App\\ResponseInterface;' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\Controller\\ResultFactory;' . PHP_EOL;
+            $contents .= 'use Magento\\Framework\\Controller\\ResultInterface;' . PHP_EOL;
             $contents .= '' . PHP_EOL;
+            $contents .= '/**'. PHP_EOL;
+            $contents .= '* @return ResultInterface|ResponseInterface'. PHP_EOL;
+            $contents .= '*/'. PHP_EOL;
             $contents .= 'class Index extends \\Magento\\Backend\\App\\Action' . PHP_EOL;
             $contents .= '{' . PHP_EOL;
             $contents .= '    public function execute()' . PHP_EOL;
             $contents .= '    {' . PHP_EOL;
-            $contents .= '        return $this->resultFactory->create(ResultFactory::TYPE_PAGE);' . PHP_EOL;
+
+            $snakeCaseEntityName = $this->helper->convertToSnakeCase($entityName);
+            $title = ucwords(str_replace('_', ' ', $snakeCaseEntityName));
+
+            $contents .= '        $resultPage = $this->resultFactory->create(ResultFactory::TYPE_PAGE);' . PHP_EOL;
+            $contents .= '        $resultPage->getConfig()->getTitle()->prepend(__(\'' . $title . '\'));' . PHP_EOL;
+            $contents .= '        return $resultPage;' . PHP_EOL;
             $contents .= '    }' . PHP_EOL;
             $contents .= '}' . PHP_EOL;
             if ($this->filesystemIo->write($indexFile, $contents)) {
@@ -762,20 +769,20 @@ class BackendControllersStructure
              * Others just add to the parent
              */
             if ($menuPosition === 'menu_root') {
-                $contents .= '        <add id="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '::' . $snakeCaseEntityName . '" title="' . $title . '" 
-                module="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '" resource="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '::' . $snakeCaseEntityName . '" 
+                $contents .= '        <add id="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '::' . $snakeCaseEntityName . '" title="' . $title . '"
+                module="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '" resource="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '::' . $snakeCaseEntityName . '"
                 translate="title" sortOrder="900" action="' . $frontName . '"/>' . PHP_EOL;
             } elseif ($menuPosition === 'Magento_Backend::content' || $menuPosition === 'Magento_Catalog::catalog') {
-                $contents .= '        <add id="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '::' . $snakeCaseEntityName . '" title="' . $title . ' Menu' . '" 
-                translate="title" module="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '" sortOrder="100" parent="'. $menuPosition . '" 
+                $contents .= '        <add id="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '::' . $snakeCaseEntityName . '" title="' . $title . ' Menu' . '"
+                translate="title" module="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '" sortOrder="100" parent="'. $menuPosition . '"
                 resource="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '::' . $snakeCaseEntityName . '" />' . PHP_EOL;
-                $contents .= '        <add id="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '::' . $snakeCaseEntityName . '_item" title="' . $title . '" translate="' . $title . '" 
-                module="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '" sortOrder="0" parent="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '::' . $snakeCaseEntityName . '" 
+                $contents .= '        <add id="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '::' . $snakeCaseEntityName . '_item" title="' . $title . '" translate="' . $title . '"
+                module="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '" sortOrder="0" parent="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '::' . $snakeCaseEntityName . '"
                 action="' . $frontName . '" resource="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '::' . $snakeCaseEntityName . '" />' . PHP_EOL;
             } else {
 
-                $contents .= '        <add id="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '::' . $snakeCaseEntityName . '" title="' . $title . '" 
-                translate="title" module="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '" sortOrder="200" parent="' . $menuPosition . '" action="' . $frontName . '" 
+                $contents .= '        <add id="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '::' . $snakeCaseEntityName . '" title="' . $title . '"
+                translate="title" module="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '" sortOrder="200" parent="' . $menuPosition . '" action="' . $frontName . '"
                 resource="' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '::' . $snakeCaseEntityName . '" />' . PHP_EOL;
             }
             $contents .= '    </menu>' . PHP_EOL;
