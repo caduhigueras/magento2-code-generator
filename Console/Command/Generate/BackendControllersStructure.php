@@ -289,7 +289,7 @@ class BackendControllersStructure
             $contents .= '        ' . $entityName . 'Factory $' . $lowerCamelCaseEntityName . 'Factory,' . PHP_EOL;
             $contents .= '        ' . $entityName . 'Repository $' . $lowerCamelCaseEntityName . 'Repository,' . PHP_EOL;
             $contents .= '        DataPersistorInterface $dataPersistor,' . PHP_EOL;
-            $contents .= '        SerializerInterface $json,' . PHP_EOL;
+            $contents .= '        SerializerInterface $json' . PHP_EOL;
             $contents .= '    ) {' . PHP_EOL;
             $contents .= '        $this->context = $context;' . PHP_EOL;
             $contents .= '        $this->' . $lowerCamelCaseEntityName . 'Factory = $' . $lowerCamelCaseEntityName . 'Factory;' . PHP_EOL;
@@ -302,7 +302,7 @@ class BackendControllersStructure
             $contents .= '    /**' . PHP_EOL;
             $contents .= '     * @return Redirect|ResultInterface|ResponseInterface' . PHP_EOL;
             $contents .= '     */' . PHP_EOL;
-            $contents .= '    public function execute(): Redirect|ResultInterface|ResponseInterface' . PHP_EOL;
+            $contents .= '    public function execute()' . PHP_EOL;
             $contents .= '    {' . PHP_EOL;
             $contents .= '        /** @var \Magento\Backend\Model\View\Result\Redirect $resultRedirect */' . PHP_EOL;
             $contents .= '        $resultRedirect = $this->resultRedirectFactory->create();' . PHP_EOL;
@@ -442,7 +442,7 @@ class BackendControllersStructure
             $contents .= '     * @return ResultInterface|ResponseInterface' . PHP_EOL;
             $contents .= '     * @throws NoSuchEntityException' . PHP_EOL;
             $contents .= '     */' . PHP_EOL;
-            $contents .= '    public function execute(): ResultInterface|ResponseInterface' . PHP_EOL;
+            $contents .= '    public function execute()' . PHP_EOL;
             $contents .= '    {' . PHP_EOL;
             $contents .= '        $id = $this->getRequest()->getParam(\'id\');' . PHP_EOL;
             $contents .= '        ($id) ? $' . $lowerCamelCaseEntityName . ' = $this->' . $lowerCamelCaseEntityName . 'Repository->getById($id) : $' . $lowerCamelCaseEntityName . ' = null;' . PHP_EOL;
@@ -525,7 +525,7 @@ class BackendControllersStructure
             $contents .= '     * @throws CouldNotSaveException' . PHP_EOL;
             $contents .= '     * @throws NoSuchEntityException' . PHP_EOL;
             $contents .= '     */' . PHP_EOL;
-            $contents .= '    public function execute(): ResultInterface|ResponseInterface|Redirect' . PHP_EOL;
+            $contents .= '    public function execute()' . PHP_EOL;
             $contents .= '    {' . PHP_EOL;
             $contents .= '        $resultRedirect = $this->resultRedirectFactory->create();' . PHP_EOL;
             $contents .= '        $duplicateId = $this->getRequest()->getParam(\'id\');' . PHP_EOL;
@@ -670,7 +670,7 @@ class BackendControllersStructure
             $contents .= '    /**' . PHP_EOL;
             $contents .= '     * @return ResultInterface|ResponseInterface' . PHP_EOL;
             $contents .= '     */' . PHP_EOL;
-            $contents .= '    public function execute(): ResultInterface|ResponseInterface' . PHP_EOL;
+            $contents .= '    public function execute()' . PHP_EOL;
             $contents .= '    {' . PHP_EOL;
             $contents .= '        $resultPage = $this->resultFactory->create(ResultFactory::TYPE_PAGE);' . PHP_EOL;
             $contents .= '        $resultPage->getConfig()->getTitle()->prepend(__(\'' . $title . ' - Add New ' . $title . '\'));' . PHP_EOL;
@@ -718,7 +718,7 @@ class BackendControllersStructure
             $contents .= '*/'. PHP_EOL;
             $contents .= 'class Index extends \\Magento\\Backend\\App\\Action' . PHP_EOL;
             $contents .= '{' . PHP_EOL;
-            $contents .= '    public function execute(): ResultInterface|ResponseInterface' . PHP_EOL;
+            $contents .= '    public function execute()' . PHP_EOL;
             $contents .= '    {' . PHP_EOL;
             $contents .= '        return $this->resultFactory->create(ResultFactory::TYPE_PAGE);' . PHP_EOL;
             $contents .= '    }' . PHP_EOL;
