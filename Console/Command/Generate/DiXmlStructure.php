@@ -103,6 +103,14 @@ class DiXmlStructure
             $contents .= '            </argument>' . PHP_EOL;
             $contents .= '        </arguments>' . PHP_EOL;
             $contents .= '    </type>' . PHP_EOL;
+            $contents .= '    <type name="Test\Signature\Model\ResourceModel\TestSignature\Grid\Collection">' . PHP_EOL;
+            $contents .= '        <arguments>' . PHP_EOL;
+            $contents .= '            <argument name="mainTable" xsi:type="const">' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Api' . '\\' . 'Data' . '\\' . $entityName . 'Interface::' . strtoupper($this->helper->convertToSnakeCase($entityName)) . '_TABLE' . '</argument>' . PHP_EOL;
+            $contents .= '            <argument name="eventPrefix" xsi:type="const">' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Api' . '\\' . 'Data' . '\\' . $entityName . 'Interface::' . strtoupper($this->helper->convertToSnakeCase($entityName)) . '_EVENT_PREFIX' . '</argument>' . PHP_EOL;
+            $contents .= '            <argument name="eventObject" xsi:type="const">' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Api' . '\\' . 'Data' . '\\' . $entityName . 'Interface::' . strtoupper($this->helper->convertToSnakeCase($entityName)) . '_EVENT_OBJECT' . '</argument>' . PHP_EOL;
+            $contents .= '            <argument name="resourceModel" xsi:type="string">' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . 'ResourceModel' . '\\' . $entityName . '</argument>' . PHP_EOL;
+            $contents .= '        </arguments>' . PHP_EOL;
+            $contents .= '    </type>' . PHP_EOL;
             $contents .= '</config>' . PHP_EOL;
             if ($this->filesystemIo->write($diFile, $contents)) {
                 $result['success'] = true;

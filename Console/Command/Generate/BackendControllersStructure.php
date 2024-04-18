@@ -316,7 +316,7 @@ class BackendControllersStructure
                     array_push($fieldSets, $column['backend_fieldset']);
                     array_push($fieldSetNames, '"' . $column['backend_fieldset'] . '"');
                 }
-                if ($column['backend_type'] === 'imageUploader' || $column['backend_type'] === 'fileUploader' || $column['backend_type'] === 'dynamicRow') {
+                if (in_array($column['backend_type'], ['imageUploader', 'fileUploader', 'dynamicRow'])) {
                     array_push($serializedColumns, [$column['name'],$column['backend_fieldset']]);
                 }
             }
