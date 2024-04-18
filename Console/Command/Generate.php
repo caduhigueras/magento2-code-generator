@@ -99,6 +99,19 @@ class Generate extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $helper = $this->questionHelper();
+
+        $output->writeln("Before start, we need to ask a couple questions.");
+
+        $askName = new Question('Select a <fg=green>username</> to be used for the signatures' . PHP_EOL, '');
+        $user = $helper->ask($input, $output, $askName);
+        $this->helper->setUserName($user);
+
+        $askTeam = new Question('Select a <fg=green>team name</> to be used for the signatures' . PHP_EOL, '');
+        $team = $helper->ask($input, $output, $askTeam);
+        $this->helper->setTeam($team);
+
+        $this->helper->setDate(date("j/n/Y"));
+
         //install only initial module
         if ($input->getOption('module-only')) {
             $this->initialModuleStructure($input, $output);
@@ -190,6 +203,7 @@ class Generate extends Command
             $sequenceModulesAnswer = $helper->ask($input, $output, $sequenceModulesToCreate);
         }
         if ($moduleToCreateAnswer) {
+            $this->helper->setVendorNamespace($moduleToCreateAnswer);
             $output->writeln('Generating necessary Magento 2 initial files...');
             $resp = $this->initialModuleStructure->createInitialModuleStructure($moduleToCreateAnswer, $sequenceModulesAnswer);
             $moduleArr = explode('_', $moduleToCreateAnswer);
@@ -424,8 +438,10 @@ class Generate extends Command
     {
         $vendorNamespaceArr = explode('_', $module);
         $helper = $this->questionHelper();
-        $frontNameQuestion = new Question('Define the backend <fg=green>router frontName</>: (no dashes or spaces allowed)' . PHP_EOL, 'demo-entity-frontend');
-        $frontName = $helper->ask($input, $output, $frontNameQuestion);
+        /*$frontNameQuestion = new Question('Define the backend <fg=green>router frontName</>: (no dashes or spaces allowed)' . PHP_EOL, 'demo-entity-frontend');
+        $frontName = $helper->ask($input, $output, $frontNameQuestion);*/
+        $frontName = $this->helper->convertToSnakeCase($entityName);;
+
         $menuPositionQuestion = new Question('Define where on the backend it should appear:' . PHP_EOL .
             'Examples: menu_root | Magento_Backend::content | Magento_Customer::customer | Magento_Catalog::catalog | Magento_Catalog::catalog_products | ' . PHP_EOL .
             'Magento_Catalog::catalog_categories | Magento_Sales::sales | Magento_Sales::sales_order | Magento_Sales::sales_shipment ' . PHP_EOL, 'menu_root');

@@ -174,37 +174,37 @@ class ViewAndLayoutStructure
         $editFile = $viewLayoutFolder . '/' . $snakeCaseEntityName . '_' . strtolower($entityName) . '_edit.xml';
         $indexFile = $viewLayoutFolder . '/' . $snakeCaseEntityName . '_index_index.xml';
 
-        if (!$this->generateLayoutAddFile($addFile, $snakeCaseEntityName)) {
+        if (!$this->generateLayoutAddFile($addFile, $snakeCaseEntityName, $snakeCaseEntityName . '_' . strtolower($entityName) . '_add.xml')) {
             $result['success'] = false;
             $result['message'] = 'Could not generate Layout Add File';
             return $result;
         }
-        if (!$this->generateLayoutEditFile($editFile, $snakeCaseEntityName)) {
+        if (!$this->generateLayoutEditFile($editFile, $snakeCaseEntityName, $snakeCaseEntityName . '_' . strtolower($entityName) . '_edit.xml')) {
             $result['success'] = false;
             $result['message'] = 'Could not generate Layout Edit File';
             return $result;
         }
-        if (!$this->generateLayoutIndexFile($indexFile, $snakeCaseEntityName)) {
+        if (!$this->generateLayoutIndexFile($indexFile, $snakeCaseEntityName, $snakeCaseEntityName . '_index_index.xml')) {
             $result['success'] = false;
             $result['message'] = 'Could not generate Layout Index File';
             return $result;
         }
         $gridFile = $viewUiComponentFolder . '/' . $snakeCaseEntityName . '_grid.xml';
         $formFile = $viewUiComponentFolder . '/' . $snakeCaseEntityName . '_form.xml';
-        if (!$this->generateUiGridFile($gridFile, $snakeCaseEntityName, $title, $entityName, $vendorNamespaceArr, $dbColumns, $frontName)) {
+        if (!$this->generateUiGridFile($gridFile, $snakeCaseEntityName, $title, $entityName, $vendorNamespaceArr, $dbColumns, $frontName, $snakeCaseEntityName . '_grid.xml')) {
             $result['success'] = false;
             $result['message'] = 'Could not generate Ui Grid Xml File';
             return $result;
         }
         if ($uiFormStyle == 2) {
-            if (!$this->generateUiFormFile($formFile, $snakeCaseEntityName, $title, $entityName, $vendorNamespaceArr, $dbColumns, $frontName)) {
+            if (!$this->generateUiFormFile($formFile, $snakeCaseEntityName, $title, $entityName, $vendorNamespaceArr, $dbColumns, $frontName, $snakeCaseEntityName . '_form.xml')) {
                 $result['success'] = false;
                 $result['message'] = 'Could not generate Ui Form Xml File';
                 return $result;
             }
         } else {
-            /** Generate UI Form with 1 columns */
-            if (!$this->generateUiFormFile($formFile, $snakeCaseEntityName, $title, $entityName, $vendorNamespaceArr, $dbColumns, $frontName, true)) {
+            /** Generate UI Form with 1 column */
+            if (!$this->generateUiFormFile($formFile, $snakeCaseEntityName, $title, $entityName, $vendorNamespaceArr, $dbColumns, $frontName, $snakeCaseEntityName . '_form.xml', true)) {
                 $result['success'] = false;
                 $result['message'] = 'Could not generate Ui Form Xml File';
                 return $result;
@@ -223,13 +223,15 @@ class ViewAndLayoutStructure
      * @param $vendorNamespaceArr
      * @param $dbColumns
      * @param $frontName
+     * @param $fileName
      * @param bool $oneColumn
      * @return bool
      */
-    public function generateUiFormFile($formFile, $snakeCaseEntityName, $title, $entityName, $vendorNamespaceArr, $dbColumns, $frontName, $oneColumn = false)
+    public function generateUiFormFile($formFile, $snakeCaseEntityName, $title, $entityName, $vendorNamespaceArr, $dbColumns, $frontName, $fileName, $oneColumn = false)
     {
         if (!$this->filesystemIo->fileExists($formFile)){
             $contents = '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
+            $contents .= $this->helper->getXmlSignature($fileName);
             $contents .= '<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">' . PHP_EOL;
             $contents .= '    <argument name="data" xsi:type="array">' . PHP_EOL;
             $contents .= '        <item name="js_config" xsi:type="array">' . PHP_EOL;
@@ -422,12 +424,14 @@ class ViewAndLayoutStructure
      * @param $vendorNamespaceArr
      * @param $dbColumns
      * @param $frontName
+     * @param $fileName
      * @return bool
      */
-    public function generateUiGridFile($gridFile, $snakeCaseEntityName, $title, $entityName, $vendorNamespaceArr, $dbColumns, $frontName)
+    public function generateUiGridFile($gridFile, $snakeCaseEntityName, $title, $entityName, $vendorNamespaceArr, $dbColumns, $frontName, $fileName)
     {
         if (!$this->filesystemIo->fileExists($gridFile)){
             $contents = '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
+            $contents .= $this->helper->getXmlSignature($fileName);
             $contents .= '<listing xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">' . PHP_EOL;
             $contents .= '    <argument name="data" xsi:type="array">' . PHP_EOL;
             $contents .= '        <item name="js_config" xsi:type="array">' . PHP_EOL;
@@ -530,12 +534,14 @@ class ViewAndLayoutStructure
     /**
      * @param $indexFile
      * @param $snakeCaseEntityName
+     * @param $fileName
      * @return bool
      */
-    public function generateLayoutIndexFile($indexFile, $snakeCaseEntityName)
+    public function generateLayoutIndexFile($indexFile, $snakeCaseEntityName, $fileName)
     {
         if (!$this->filesystemIo->fileExists($indexFile)){
             $contents = '<?xml version="1.0"?>' . PHP_EOL;
+            $contents .= $this->helper->getXmlSignature($fileName);
             $contents .= '<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">' . PHP_EOL;
             $contents .= '    <body>' . PHP_EOL;
             $contents .= '        <referenceContainer name="content">' . PHP_EOL;
@@ -556,12 +562,14 @@ class ViewAndLayoutStructure
     /**
      * @param $addFile
      * @param $snakeCaseEntityName
+     * @param $fileName
      * @return bool
      */
-    public function generateLayoutAddFile($addFile, $snakeCaseEntityName)
+    public function generateLayoutAddFile($addFile, $snakeCaseEntityName, $fileName)
     {
         if (!$this->filesystemIo->fileExists($addFile)){
             $contents = '<?xml version="1.0"?>' . PHP_EOL;
+            $contents .= $this->helper->getXmlSignature($fileName);
             $contents .= '<page layout="admin-2columns-left" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">' . PHP_EOL;
             $contents .= '    <body>' . PHP_EOL;
             $contents .= '        <referenceContainer name="content">' . PHP_EOL;
@@ -582,12 +590,14 @@ class ViewAndLayoutStructure
     /**
      * @param $editFile
      * @param $snakeCaseEntityName
+     * @param $fileName
      * @return bool
      */
-    public function generateLayoutEditFile($editFile, $snakeCaseEntityName)
+    public function generateLayoutEditFile($editFile, $snakeCaseEntityName, $fileName)
     {
         if (!$this->filesystemIo->fileExists($editFile)){
             $contents = '<?xml version="1.0"?>' . PHP_EOL;
+            $contents .= $this->helper->getXmlSignature($fileName);
             $contents .= '<page layout="admin-2columns-left" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">' . PHP_EOL;
             $contents .= '    <update handle="styles"/>' . PHP_EOL;
             $contents .= '    <update handle="editor"/>' . PHP_EOL;

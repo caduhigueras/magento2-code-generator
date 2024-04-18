@@ -102,6 +102,7 @@ class ApiAndModelStructure
         $apiRepositoryFile = $appFolderPath . 'code' . '/' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Api/Data' . '/' . $entityName . 'SearchResultsInterface.php';
         if (!$this->filesystemIo->fileExists($apiRepositoryFile)) {
             $contents = '<?php' . PHP_EOL;
+            $contents .= $this->helper->getSignature($entityName . 'SearchResultsInterface.php');
             $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Api\\Data;' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\Api\\SearchResultsInterface;' . PHP_EOL;
@@ -147,6 +148,7 @@ class ApiAndModelStructure
         $lowerCamelCaseEntityName = $this->helper->convertToLowerCamelCase($entityName);
         if (!$this->filesystemIo->fileExists($apiRepositoryFile)) {
             $contents = '<?php' . PHP_EOL;
+            $contents .= $this->helper->getSignature($entityName . 'RepositoryInterface.php');
             $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Api;' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\Exception\\LocalizedException;' . PHP_EOL;
@@ -213,7 +215,7 @@ class ApiAndModelStructure
         $apiRepositoryFile = $appFolderPath . 'code' . '/' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Api/Data' . '/' . $entityName . 'Interface.php';
         if (!$this->filesystemIo->fileExists($apiRepositoryFile)) {
             $contents = '<?php' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= $this->helper->getSignature($entityName . 'Interface.php');
             $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Api\\Data;' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= 'interface ' . $entityName . 'Interface' . PHP_EOL;
@@ -369,7 +371,7 @@ class ApiAndModelStructure
         $filePath = $folder . '/' . $file;
         if (!$this->filesystemIo->fileExists($filePath)) {
             $contents = '<?php' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= $this->helper->getSignature($file);
             $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model\\' . 'ResourceModel' . '\\' . $entityName . '\\' . 'Grid;' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\Data\\Collection\\Db\\FetchStrategyInterface as FetchStrategy;' . PHP_EOL;
@@ -431,7 +433,7 @@ class ApiAndModelStructure
         $filePath = $folder . '/' . $file;
         if (!$this->filesystemIo->fileExists($filePath)) {
             $contents = '<?php' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= $this->helper->getSignature($file);
             $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model\\' . 'ResourceModel' . '\\' . $entityName . ';' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= 'use Magento\Framework\Model\ResourceModel\Db\Collection\AbstractCollection;' . PHP_EOL;
@@ -483,6 +485,7 @@ class ApiAndModelStructure
         $filePath = $folder . '/' . $file;
         if (!$this->filesystemIo->fileExists($filePath)) {
             $contents = '<?php' . PHP_EOL;
+            $contents .= $this->helper->getSignature($file);
             $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model\\' . 'ResourceModel;' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\EntityManager\\EntityManager;' . PHP_EOL;
@@ -554,6 +557,7 @@ class ApiAndModelStructure
         $filePath = $folder . '/' . $file;
         if (!$this->filesystemIo->fileExists($filePath)) {
             $contents = '<?php' . PHP_EOL;
+            $contents .= $this->helper->getSignature($file);
             $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . ';' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\Api\\SearchCriteria\\CollectionProcessorInterface;' . PHP_EOL;
@@ -585,6 +589,7 @@ class ApiAndModelStructure
             $contents .= '     * ' . $entityName . 'Repository constructor.' . PHP_EOL;
             $contents .= '     * @param ' . $entityName . 'Factory $' . $this->helper->convertToLowerCamelCase($entityName) . 'Factory' . PHP_EOL;
             $contents .= '     * @param Resource' . $entityName . ' $resource' . PHP_EOL;
+            $contents .= '     * @param StoreManagerInterface $storeManager' . PHP_EOL;
             $contents .= '     * @param CollectionFactory $collectionFactory' . PHP_EOL;
             $contents .= '     * @param TimezoneInterface $timezone' . PHP_EOL;
             $contents .= '     * @param Data\\' . $entityName . 'SearchResultsInterfaceFactory $searchResultsFactory' . PHP_EOL;
@@ -643,7 +648,7 @@ class ApiAndModelStructure
             $contents .= '     */' . PHP_EOL;
             $contents .= '    public function save(Data\\' . $entityName . 'Interface $' . $this->helper->convertToLowerCamelCase($entityName) . '): Data\\' . $entityName . 'Interface' . PHP_EOL;
             $contents .= '    {' . PHP_EOL;
-            $contents .= '        if (empty($' . $this->helper->convertToLowerCamelCase($entityName) . '->getStoreId())  && $customForm->getStoreId() !== "0") {' . PHP_EOL;
+            $contents .= '        if (empty($' . $this->helper->convertToLowerCamelCase($entityName) . '->getStoreId()) && $' . $this->helper->convertToLowerCamelCase($entityName) . '->getStoreId() !== "0") {' . PHP_EOL;
             $contents .= '            $' . $this->helper->convertToLowerCamelCase($entityName) . '->setStoreId($this->storeManager->getStore()->getId());' . PHP_EOL;
             $contents .= '        }' . PHP_EOL;
             $contents .= '' . PHP_EOL;
@@ -716,6 +721,7 @@ class ApiAndModelStructure
         $filePath = $folder . '/' . $file;
         if (!$this->filesystemIo->fileExists($filePath)) {
             $contents = '<?php' . PHP_EOL;
+            $contents .= $this->helper->getSignature($file);
             $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . ';' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\Model\\AbstractModel;' . PHP_EOL;

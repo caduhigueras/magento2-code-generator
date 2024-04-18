@@ -73,6 +73,7 @@ class DiXmlStructure
         $diFile = $folder . '/' . 'di.xml';
         if (!$this->filesystemIo->fileExists($diFile)) {
             $contents = '<?xml version="1.0"?>' . PHP_EOL;
+            $this->helper->getXmlSignature('di.xml');
             $contents .= '<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">' . PHP_EOL;
             $contents .= '    <preference for="' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Api\\Data' . '\\' . $entityName . 'Interface" type="' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . $entityName . '"/>' . PHP_EOL;
             $contents .= '    <preference for="' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Api' . '\\' . $entityName . 'RepositoryInterface" type="' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . $entityName . 'Repository"/>' . PHP_EOL;

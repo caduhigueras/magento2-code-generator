@@ -121,6 +121,7 @@ class BackendBlocksStructure
         $title = ucwords(str_replace('_', ' ', $snakeCaseEntityName));
         if (!$this->filesystemIo->fileExists($saveAndContinueButtonFile)){
             $contents = '<?php' . PHP_EOL;
+            $contents .= $this->helper->getSignature('SaveAndContinueButton.php');
             $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Block' . '\\' . 'Adminhtml' . '\\' . $entityName . '\\' . 'Edit;' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\View\\Element\\UiComponent\\Control\\ButtonProviderInterface;' . PHP_EOL;
@@ -166,7 +167,7 @@ class BackendBlocksStructure
         $title = ucwords(str_replace('_', ' ', $snakeCaseEntityName));
         if (!$this->filesystemIo->fileExists($saveButtonFile)){
             $contents = '<?php' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= $this->helper->getSignature('SaveButton.php');
             $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Block' . '\\' . 'Adminhtml' . '\\' . $entityName . '\\' . 'Edit;' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\View\\Element\\UiComponent\\Control\\ButtonProviderInterface;' . PHP_EOL;
@@ -213,7 +214,7 @@ class BackendBlocksStructure
         $title = ucwords(str_replace('_', ' ', $snakeCaseEntityName));
         if (!$this->filesystemIo->fileExists($deleteButtonFile)){
             $contents = '<?php' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= $this->helper->getSignature('DeleteButton.php');
             $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Block' . '\\' . 'Adminhtml' . '\\' . $entityName . '\\' . 'Edit;' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\Exception\\LocalizedException;' . PHP_EOL;
@@ -276,6 +277,7 @@ class BackendBlocksStructure
         $backButtonFile = $blockFolder . '/' . 'BackButton.php';
         if (!$this->filesystemIo->fileExists($backButtonFile)){
             $contents = '<?php' . PHP_EOL;
+            $contents .= $this->helper->getSignature('BackButton.php');
             $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Block' . '\\' . 'Adminhtml' . '\\' . $entityName . '\\' . 'Edit;' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\View\\Element\\UiComponent\\Control\\ButtonProviderInterface;' . PHP_EOL;
@@ -332,7 +334,7 @@ class BackendBlocksStructure
         $lowerCamelCaseEntityName = $this->helper->convertToLowerCamelCase($entityName);
         if (!$this->filesystemIo->fileExists($genericButtonFile)){
             $contents = '<?php' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= $this->helper->getSignature('GenericButton.php');
             $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Block' . '\\' . 'Adminhtml' . '\\' . $entityName . '\\' . 'Edit;' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= 'use Magento\\Backend\\Block\\Widget\\Context;' . PHP_EOL;

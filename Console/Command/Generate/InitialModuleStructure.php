@@ -1,6 +1,7 @@
 <?php
 namespace CodeBaby\CodeGenerator\Console\Command\Generate;
 
+use CodeBaby\CodeGenerator\Helper\Data;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Filesystem;
@@ -45,6 +46,10 @@ class InitialModuleStructure
      * @var FileIo
      */
     private $filesystemIo;
+    /**
+     * @var Data
+     */
+    private $helper;
 
     /**
      * FileProcessor constructor.
@@ -55,6 +60,7 @@ class InitialModuleStructure
      * @param File $file
      * @param FileIo $filesystemIo
      * @param UrlInterface $urlBuilder
+     * @param Data $helper
      */
     public function __construct(
         ManagerInterface $messageManager,
@@ -63,7 +69,8 @@ class InitialModuleStructure
         ResourceConnection $resource,
         File $file,
         FileIo $filesystemIo,
-        UrlInterface $urlBuilder
+        UrlInterface $urlBuilder,
+        Data $helper
     ) {
         $this->messageManager = $messageManager;
         $this->filesystem = $filesystem;
@@ -72,6 +79,7 @@ class InitialModuleStructure
         $this->_file = $file;
         $this->urlBuilder = $urlBuilder;
         $this->filesystemIo = $filesystemIo;
+        $this->helper = $helper;
     }
 
     /**
@@ -138,11 +146,14 @@ class InitialModuleStructure
         $file = $dir . '/' . 'registration.php';
         if (!$this->filesystemIo->fileExists($file)){
             $contents = '<?php' . PHP_EOL;
-            $contents .= '    \Magento\Framework\Component\ComponentRegistrar::register(' . PHP_EOL;
-            $contents .= '        \Magento\Framework\Component\ComponentRegistrar::MODULE,' . PHP_EOL;
-            $contents .= '        "' . $vendorNamespace . '",' . PHP_EOL;
-            $contents .= '        __DIR__' . PHP_EOL;
-            $contents .= '    );' . PHP_EOL;
+            $contents .= $this->helper->getSignature('registration.php');
+            $contents .= 'use Magento\Framework\Component\ComponentRegistrar;' . PHP_EOL;
+            $contents .= PHP_EOL;
+            $contents .= 'ComponentRegistrar::register(' . PHP_EOL;
+            $contents .= '    ComponentRegistrar::MODULE,' . PHP_EOL;
+            $contents .= '    \'' . $vendorNamespace . '\',' . PHP_EOL;
+            $contents .= '    __DIR__' . PHP_EOL;
+            $contents .= ');' . PHP_EOL;
             if ($this->filesystemIo->write($file, $contents)) {
                 return true;
             }
@@ -166,6 +177,7 @@ class InitialModuleStructure
         $file = $dir . '/etc/module.xml';
         if (!$this->filesystemIo->fileExists($file)){
             $contents = '<?xml version="1.0"?>' . PHP_EOL;
+            $contents .= $this->helper->getXmlSignature('db_schema.xml');
             $contents .= '<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Module/etc/module.xsd">' . PHP_EOL;
             $contents .= '    <module name="' . $vendorNamespace . '" setup_version="0.0.1">' . PHP_EOL;
             if ($sequenceModules) {
@@ -204,9 +216,7 @@ class InitialModuleStructure
             $contents .= '  "version": "0.0.1",' . PHP_EOL;
             $contents .= '  "authors": [' . PHP_EOL;
             $contents .= '    {' . PHP_EOL;
-            $contents .= '        "name": "Cadu Higueras",' . PHP_EOL;
-            $contents .= '      "email": "cadu@codebaby.tech",' . PHP_EOL;
-            $contents .= '      "homepage": "https://codebaby.tech"' . PHP_EOL;
+            $contents .= '        "name": "' . $this->helper->getUserName() . '"' . PHP_EOL;
             $contents .= '    }' . PHP_EOL;
             $contents .= '  ],' . PHP_EOL;
             $contents .= '  "license": [' . PHP_EOL;
@@ -214,15 +224,15 @@ class InitialModuleStructure
             $contents .= '                "AFL-3.0"' . PHP_EOL;
             $contents .= '            ],' . PHP_EOL;
             $contents .= '  "require": {' . PHP_EOL;
-            $contents .= '                "php": "~7.2.0",' . PHP_EOL;
-            $contents .= '    "magento/magento-composer-installer": "*",' . PHP_EOL;
-            $contents .= '    "magento/framework": "~100.0"' . PHP_EOL;
+            $contents .= '      "php": "~7.2.0",' . PHP_EOL;
+            $contents .= '      "magento/magento-composer-installer": "*",' . PHP_EOL;
+            $contents .= '      "magento/framework": "~100.0"' . PHP_EOL;
             $contents .= '  },' . PHP_EOL;
             $contents .= '  "autoload": {' . PHP_EOL;
-            $contents .= '    "files": [ "registration.php" ],' . PHP_EOL;
-            $contents .= '    "psr-4": {' . PHP_EOL;
-            $contents .= '    "' . $vendorNamespaceArr[0] .'\\\\' . $vendorNamespaceArr[1] . '\\\\": ""' . PHP_EOL;
-            $contents .= '    }' . PHP_EOL;
+            $contents .= '      "files": [ "registration.php" ],' . PHP_EOL;
+            $contents .= '      "psr-4": {' . PHP_EOL;
+            $contents .= '          "' . $vendorNamespaceArr[0] .'\\\\' . $vendorNamespaceArr[1] . '\\\\": ""' . PHP_EOL;
+            $contents .= '      }' . PHP_EOL;
             $contents .= '  }' . PHP_EOL;
             $contents .= '}' . PHP_EOL;
             if ($this->filesystemIo->write($file, $contents)) {

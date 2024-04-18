@@ -119,7 +119,7 @@ class UiFolderStructure
         $title = ucwords(str_replace('_', ' ', $snakeCaseEntityName));
         if (!$this->filesystemIo->fileExists($actionsFile)) {
             $contents = '<?php' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= $this->helper->getSignature('DataProvider.php');
             $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\Ui\\Component;' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\App\\Request\\DataPersistorInterface;' . PHP_EOL;
@@ -233,7 +233,7 @@ class UiFolderStructure
         $title = ucwords(str_replace('_', ' ', $snakeCaseEntityName));
         if (!$this->filesystemIo->fileExists($actionsFile)){
             $contents = '<?php' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= $this->helper->getSignature('Actions.php');
             $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\Ui\\Component\\Listing\\Column;' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\UrlInterface;' . PHP_EOL;

@@ -1,6 +1,7 @@
 <?php
 namespace CodeBaby\CodeGenerator\Console\Command\Generate;
 
+use CodeBaby\CodeGenerator\Helper\Data;
 use Magento\Framework\App\ResourceConnection;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Filesystem;
@@ -45,6 +46,7 @@ class DbSchemaStructure
      * @var FileIo
      */
     private $filesystemIo;
+    private Data $helper;
 
     /**
      * FileProcessor constructor.
@@ -55,6 +57,7 @@ class DbSchemaStructure
      * @param File $file
      * @param FileIo $filesystemIo
      * @param UrlInterface $urlBuilder
+     * @param Data $helper
      */
     public function __construct(
         ManagerInterface $messageManager,
@@ -63,7 +66,8 @@ class DbSchemaStructure
         ResourceConnection $resource,
         File $file,
         FileIo $filesystemIo,
-        UrlInterface $urlBuilder
+        UrlInterface $urlBuilder,
+        Data $helper
     ) {
         $this->messageManager = $messageManager;
         $this->filesystem = $filesystem;
@@ -72,6 +76,7 @@ class DbSchemaStructure
         $this->_file = $file;
         $this->urlBuilder = $urlBuilder;
         $this->filesystemIo = $filesystemIo;
+        $this->helper = $helper;
     }
 
     public function generateDbSchemaXmlFile($vendorNamespace, $tableName, $columns)
@@ -104,6 +109,7 @@ class DbSchemaStructure
         $file = $dir . '/' . 'db_schema.xml';
         if (!$this->filesystemIo->fileExists($file)){
             $contents = '<?xml version="1.0"?>' . PHP_EOL;
+            $contents .= $this->helper->getXmlSignature('db_schema.xml');
             $contents .= '<schema xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Setup/Declaration/Schema/etc/schema.xsd">' . PHP_EOL;
             $contents .= '    <!-- reference:  https://devdocs.magento.com/guides/v2.3/extension-dev-guide/declarative-schema/db-schema.html-->' . PHP_EOL;
             $contents .= '    <table name="' . $tableName . '" resource="default" engine="innodb" charset="utf8" comment="Auto generated Table">' . PHP_EOL;
