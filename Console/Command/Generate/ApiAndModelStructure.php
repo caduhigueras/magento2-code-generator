@@ -104,9 +104,9 @@ class ApiAndModelStructure
             $contents = '<?php' . PHP_EOL;
             $contents .= $this->helper->getSignature($entityName . 'SearchResultsInterface.php');
             $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Api\\Data;' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= 'use Magento\\Framework\\Api\\SearchResultsInterface;' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= 'interface ' . $entityName . 'SearchResultsInterface extends SearchResultsInterface' . PHP_EOL;
             $contents .= '{' . PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
@@ -114,17 +114,17 @@ class ApiAndModelStructure
             $contents .= '     *' . PHP_EOL;
             $contents .= '     * @return ' . $entityName . 'Interface[]' . PHP_EOL;
             $contents .= '     */' . PHP_EOL;
-            $contents .= '    public function getItems();' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= '    public function getItems(): array;' . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
             $contents .= '     * Set ' . $entityName . ' list.' . PHP_EOL;
             $contents .= '     *' . PHP_EOL;
             $contents .= '     * @param ' . $entityName . 'Interface[] $items' . PHP_EOL;
-            $contents .= '     * @return $this' . PHP_EOL;
+            $contents .= '     * @return array' . PHP_EOL;
             $contents .= '     */' . PHP_EOL;
-            $contents .= '    public function setItems(array $items);' . PHP_EOL;
+            $contents .= '    public function setItems(array $items): array;' . PHP_EOL;
             $contents .= '}' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= PHP_EOL;
             if ($this->filesystemIo->write($apiRepositoryFile, $contents)) {
                 return true;
             }
@@ -150,18 +150,19 @@ class ApiAndModelStructure
             $contents = '<?php' . PHP_EOL;
             $contents .= $this->helper->getSignature($entityName . 'RepositoryInterface.php');
             $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Api;' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= PHP_EOL;
+            $contents .= 'use Magento\\Framework\\Api\\SearchCriteriaInterface;' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\Exception\\LocalizedException;' . PHP_EOL;
             $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\Api\\Data\\' . $entityName . 'Interface;' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= 'interface ' . $entityName . 'RepositoryInterface' . PHP_EOL;
             $contents .= '{' . PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
-            $contents .= '     * @param \\Magento\\Framework\\Api\\SearchCriteriaInterface $searchCriteria' . PHP_EOL;
-            $contents .= '     * @return mixed' . PHP_EOL;
+            $contents .= '     * @param SearchCriteriaInterface $criteria' . PHP_EOL;
+            $contents .= '     * @return Data\\' . $entityName . 'SearchResultsInterface' . PHP_EOL;
             $contents .= '     */' . PHP_EOL;
-            $contents .= '    public function getList(\\Magento\\Framework\\Api\\SearchCriteriaInterface $searchCriteria);' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= '    public function getList(SearchCriteriaInterface $criteria): Data\\' . $entityName . 'SearchResultsInterface;' . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
             $contents .= '     *' . PHP_EOL;
             $contents .= '     * @param $id' . PHP_EOL;
@@ -169,20 +170,20 @@ class ApiAndModelStructure
             $contents .= '     * @throws LocalizedException' . PHP_EOL;
             $contents .= '     */' . PHP_EOL;
             $contents .= '    public function getById($id): ' . $entityName . 'Interface;' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
             $contents .= '     * @param ' . $entityName . 'Interface $' . $lowerCamelCaseEntityName . '' . PHP_EOL;
             $contents .= '     * @return ' . $entityName . 'Interface' . PHP_EOL;
             $contents .= '     */' . PHP_EOL;
             $contents .= '    public function save(Data\\' . $entityName . 'Interface $' . $lowerCamelCaseEntityName . '): ' . $entityName . 'Interface;' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
             $contents .= '     *' . PHP_EOL;
             $contents .= '     * @param ' . $entityName . 'Interface $' . $lowerCamelCaseEntityName . PHP_EOL;
             $contents .= '     * @return bool true on success' . PHP_EOL;
             $contents .= '     */' . PHP_EOL;
             $contents .= '    public function delete(Data\\' . $entityName . 'Interface $' . $lowerCamelCaseEntityName . '): bool;' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
             $contents .= '     *' . PHP_EOL;
             $contents .= '     * @param $id' . PHP_EOL;
@@ -190,7 +191,7 @@ class ApiAndModelStructure
             $contents .= '     */' . PHP_EOL;
             $contents .= '    public function deleteById($id): bool;' . PHP_EOL;
             $contents .= '}' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= PHP_EOL;
 
             if ($this->filesystemIo->write($apiRepositoryFile, $contents)) {
                 return true;
@@ -238,9 +239,9 @@ class ApiAndModelStructure
             $contents .= '    public function getId();' . PHP_EOL;
             $contents .= PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
-            $contents .= '     * @return null|int' . PHP_EOL;
+            $contents .= '     * @return mixed' . PHP_EOL;
             $contents .= '     */' . PHP_EOL;
-            $contents .= '    public function getStoreId(): ?int;' . PHP_EOL;
+            $contents .= '    public function getStoreId();' . PHP_EOL;
             $contents .= PHP_EOL;
             //defining getters
             foreach ($dbColumns as $column) {
@@ -273,10 +274,10 @@ class ApiAndModelStructure
             $contents .= '    public function setId($id);' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
-            $contents .= '     * @param null|int $storeId' . PHP_EOL;
-            $contents .= '     * @return void' . PHP_EOL;
+            $contents .= '     * @param mixed $storeId' . PHP_EOL;
+            $contents .= '     * @return mixed' . PHP_EOL;
             $contents .= '     */' . PHP_EOL;
-            $contents .= '    public function setStoreId(?int $storeId): void;' . PHP_EOL;
+            $contents .= '    public function setStoreId($storeId);' . PHP_EOL;
             $contents .= '' . PHP_EOL;
             //defining getters
             foreach ($dbColumns as $column) {
@@ -424,7 +425,18 @@ class ApiAndModelStructure
             $contents .= '        AdapterInterface $connection = null,' . PHP_EOL;
             $contents .= '        AbstractDb $resource = null' . PHP_EOL;
             $contents .= '    ) {' . PHP_EOL;
-            $contents .= '      parent::__construct($entityFactory, $logger, $fetchStrategy, $eventManager, $connection, $resource);' . PHP_EOL;
+            $contents .= '      parent::__construct(' . PHP_EOL;
+            $contents .= '        $entityFactory,' . PHP_EOL;
+            $contents .= '        $logger,' . PHP_EOL;
+            $contents .= '        $fetchStrategy,' . PHP_EOL;
+            $contents .= '        $eventManager,' . PHP_EOL;
+            $contents .= '        $connection,' . PHP_EOL;
+            $contents .= '        $resource' . PHP_EOL;
+            $contents .= '      );' . PHP_EOL;
+            $contents .= '      $this->_eventPrefix = $eventPrefix;' . PHP_EOL;
+            $contents .= '      $this->_eventObject = $eventObject;' . PHP_EOL;
+            $contents .= '      $this->_init($model, $resourceModel);' . PHP_EOL;
+            $contents .= '      $this->setMainTable($mainTable);' . PHP_EOL;
             $contents .= '  }' . PHP_EOL;
             $contents .= PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
@@ -662,10 +674,11 @@ class ApiAndModelStructure
             $contents = '<?php' . PHP_EOL;
             $contents .= $this->helper->getSignature($file);
             $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . ';' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= 'use Magento\\Framework\\Api\\SearchCriteria\\CollectionProcessorInterface;' . PHP_EOL;
             $contents .= 'use Magento\Framework\Api\SearchCriteriaBuilder;' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\Api\\SearchCriteriaBuilderFactory;' . PHP_EOL;
+            $contents .= 'use Magento\\Framework\\Api\\SearchCriteriaInterface;' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\Exception\\CouldNotDeleteException;' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\Exception\\CouldNotSaveException;' . PHP_EOL;
             $contents .= 'use Magento\\Framework\\Exception\\NoSuchEntityException;' . PHP_EOL;
@@ -675,7 +688,7 @@ class ApiAndModelStructure
             $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . 'ResourceModel' . '\\' . $entityName . ' as Resource' . $entityName . ';' . PHP_EOL;
             $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . 'ResourceModel' . '\\' . $entityName . '\\' . 'CollectionFactory;' . PHP_EOL;
             $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Api\\Data;' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= 'class ' . $entityName . 'Repository implements ' . $entityName . 'RepositoryInterface' . PHP_EOL;
             $contents .= '{' . PHP_EOL;
             $contents .= '    protected CollectionFactory $collectionFactory;' . PHP_EOL;
@@ -687,7 +700,7 @@ class ApiAndModelStructure
             $contents .= '    private Data\\' . $entityName . 'SearchResultsInterfaceFactory' . ' $searchResultsFactory;' . PHP_EOL;
             $contents .= '    private SearchCriteriaBuilderFactory $searchCriteriaBuilderFactory;' . PHP_EOL;
             $contents .= '    private SearchCriteriaBuilder $searchCriteriaBuilder;' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
             $contents .= '     * ' . $entityName . 'Repository constructor.' . PHP_EOL;
             $contents .= '     * @param ' . $entityName . 'Factory $' . $this->helper->convertToLowerCamelCase($entityName) . 'Factory' . PHP_EOL;
@@ -718,16 +731,26 @@ class ApiAndModelStructure
             $contents .= '        $this->searchResultsFactory = $searchResultsFactory;' . PHP_EOL;
             $contents .= '        $this->searchCriteriaBuilder = $searchCriteriaBuilderFactory->create();' . PHP_EOL;
             $contents .= '    }' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
-            $contents .= '     * @param \\Magento\\Framework\\Api\\SearchCriteriaInterface $searchCriteria' . PHP_EOL;
-            $contents .= '     * @return mixed|\\' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Api\\Data\\' . $entityName . 'Interface[]' . PHP_EOL;
+            $contents .= '     * @param SearchCriteriaInterface $criteria' . PHP_EOL;
+            $contents .= '     * @return Data\\' . $entityName . 'SearchResultsInterface' . PHP_EOL;
             $contents .= '     */' . PHP_EOL;
-            $contents .= '    public function getList(\\Magento\\Framework\\Api\\SearchCriteriaInterface $searchCriteria)' . PHP_EOL;
+            $contents .= '    public function getList(SearchCriteriaInterface $criteria): Data\\' . $entityName . 'SearchResultsInterface' . PHP_EOL;
             $contents .= '    {' . PHP_EOL;
-            $contents .= '        return $this->collectionFactory->create()->getItems();' . PHP_EOL;
+            $contents .= '        /** @var \\' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\Model\\ResourceModel\\' . $entityName . '\\Collection $collection */' . PHP_EOL;
+            $contents .= '        $collection = $this->collectionFactory->create();' . PHP_EOL;
+            $contents .= PHP_EOL;
+            $contents .= '        $this->collectionProcessor->process($criteria, $collection);' . PHP_EOL;
+            $contents .= PHP_EOL;
+            $contents .= '        /** @var Data\\' . $entityName . 'SearchResultsInterface $searchResults */' . PHP_EOL;
+            $contents .= '        $searchResults = $this->searchResultsFactory->create();' . PHP_EOL;
+            $contents .= '        $searchResults->setSearchCriteria($criteria);' . PHP_EOL;
+            $contents .= '        $searchResults->setItems($collection->getItems());' . PHP_EOL;
+            $contents .= '        $searchResults->setTotalCount($collection->getSize());' . PHP_EOL;
+            $contents .= '        return $searchResults;' . PHP_EOL;
             $contents .= '    }' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
             $contents .= '     * @param $id' . PHP_EOL;
             $contents .= '     * @return ' . $entityName . PHP_EOL;
@@ -742,7 +765,7 @@ class ApiAndModelStructure
             $contents .= '        }' . PHP_EOL;
             $contents .= '        return $' . $this->helper->convertToLowerCamelCase($entityName) . ';' . PHP_EOL;
             $contents .= '    }' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
             $contents .= '     * @param Data\\' . $entityName . 'Interface $' . $this->helper->convertToLowerCamelCase($entityName) . PHP_EOL;
             $contents .= '     * @return Data\\' . $entityName . 'Interface' . PHP_EOL;
@@ -754,7 +777,7 @@ class ApiAndModelStructure
             $contents .= '        if (empty($' . $this->helper->convertToLowerCamelCase($entityName) . '->getStoreId()) && $' . $this->helper->convertToLowerCamelCase($entityName) . '->getStoreId() !== "0") {' . PHP_EOL;
             $contents .= '            $' . $this->helper->convertToLowerCamelCase($entityName) . '->setStoreId($this->storeManager->getStore()->getId());' . PHP_EOL;
             $contents .= '        }' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= '        try {' . PHP_EOL;
             $contents .= '            $this->resource->save($' . $this->helper->convertToLowerCamelCase($entityName) . ');' . PHP_EOL;
             $contents .= '        } catch (\Exception $exception) {' . PHP_EOL;
@@ -762,7 +785,7 @@ class ApiAndModelStructure
             $contents .= '        }' . PHP_EOL;
             $contents .= '        return $' . $this->helper->convertToLowerCamelCase($entityName) . ';' . PHP_EOL;
             $contents .= '    }' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
             $contents .= '     *' . PHP_EOL;
             $contents .= '     * @param Data\\' . $entityName . 'Interface $' . $this->helper->convertToLowerCamelCase($entityName) . PHP_EOL;
@@ -778,7 +801,7 @@ class ApiAndModelStructure
             $contents .= '        }' . PHP_EOL;
             $contents .= '        return true;' . PHP_EOL;
             $contents .= '    }' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
             $contents .= '     *' . PHP_EOL;
             $contents .= '     * @param $id' . PHP_EOL;
@@ -791,7 +814,7 @@ class ApiAndModelStructure
             $contents .= '        return $this->delete($this->getById($id));' . PHP_EOL;
             $contents .= '    }' . PHP_EOL;
             $contents .= '}' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= PHP_EOL;
             if ($this->filesystemIo->write($filePath, $contents)) {
                 return true;
             }
@@ -833,7 +856,6 @@ class ApiAndModelStructure
             $contents .= PHP_EOL;
             $contents .= 'class ' . $entityName . ' extends AbstractModel implements ' . $entityName . 'Interface' . PHP_EOL;
             $contents .= '{' . PHP_EOL;
-            $contents .= '    protected $_eventPrefix = "' . $dbName . '_grid_collection";' . PHP_EOL;
             $contents .= '    protected $_eventPrefix = ' . $entityName . 'Interface::' . strtoupper($snakeCaseName) . '_EVENT_PREFIX' . ';' . PHP_EOL;
             $contents .= PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
@@ -845,9 +867,9 @@ class ApiAndModelStructure
             $contents .= '    }' . PHP_EOL;
             $contents .= PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
-            $contents .= '     * @return null|int' . PHP_EOL;
+            $contents .= '     * @return mixed' . PHP_EOL;
             $contents .= '     */' . PHP_EOL;
-            $contents .= '    public function getStoreId(): ?int' . PHP_EOL;
+            $contents .= '    public function getStoreId()' . PHP_EOL;
             $contents .= '    {' . PHP_EOL;
             $contents .= '        return $this->getData(self::STORE_ID);' . PHP_EOL;
             $contents .= '    }' . PHP_EOL;
@@ -879,10 +901,10 @@ class ApiAndModelStructure
                 $contents .= '' . PHP_EOL;
             }
             $contents .= '    /**' . PHP_EOL;
-            $contents .= '     * @param null|int $storeId' . PHP_EOL;
+            $contents .= '     * @param mixed $storeId' . PHP_EOL;
             $contents .= '     * @return mixed' . PHP_EOL;
             $contents .= '     */' . PHP_EOL;
-            $contents .= '    public function setStoreId(?int $storeId): void' . PHP_EOL;
+            $contents .= '    public function setStoreId($storeId)' . PHP_EOL;
             $contents .= '    {' . PHP_EOL;
             $contents .= '        $this->setData(self::STORE_ID, $storeId);' . PHP_EOL;
             $contents .= '    }' . PHP_EOL;
