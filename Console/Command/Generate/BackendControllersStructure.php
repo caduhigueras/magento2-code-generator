@@ -253,8 +253,6 @@ class BackendControllersStructure
             $contents .= 'use Magento\Backend\App\Action\Context;' . PHP_EOL;
             $contents .= 'use Magento\Backend\Model\View\Result\Redirect;' . PHP_EOL;
             $contents .= 'use Magento\Framework\App\Request\DataPersistorInterface;' . PHP_EOL;
-            $contents .= 'use Magento\Framework\App\ResponseInterface;' . PHP_EOL;
-            $contents .= 'use Magento\Framework\Controller\ResultInterface;' . PHP_EOL;
             $contents .= 'use Magento\Framework\Exception\LocalizedException;' . PHP_EOL;
             $contents .= 'use Magento\Framework\Serialize\SerializerInterface;' . PHP_EOL;
             $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . $entityName . 'Factory;' . PHP_EOL;
@@ -293,9 +291,9 @@ class BackendControllersStructure
             $contents .= '    }' . PHP_EOL;
             $contents .='' . PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
-            $contents .= '     * @return Redirect|ResultInterface|ResponseInterface' . PHP_EOL;
+            $contents .= '     * @return Redirect' . PHP_EOL;
             $contents .= '     */' . PHP_EOL;
-            $contents .= '    public function execute()' . PHP_EOL;
+            $contents .= '    public function execute(): Redirect' . PHP_EOL;
             $contents .= '    {' . PHP_EOL;
             $contents .= '        /** @var \Magento\Backend\Model\View\Result\Redirect $resultRedirect */' . PHP_EOL;
             $contents .= '        $resultRedirect = $this->resultRedirectFactory->create();' . PHP_EOL;
