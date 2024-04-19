@@ -123,10 +123,9 @@ class BackendBlocksStructure
             $contents = '<?php' . PHP_EOL;
             $contents .= $this->helper->getSignature('SaveAndContinueButton.php');
             $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Block' . '\\' . 'Adminhtml' . '\\' . $entityName . '\\' . 'Edit;' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= 'use Magento\\Framework\\View\\Element\\UiComponent\\Control\\ButtonProviderInterface;' . PHP_EOL;
-            $contents .= 'use Magento\\Ui\\Component\\Control\\Container;' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= 'class SaveAndContinueButton extends GenericButton implements ButtonProviderInterface' . PHP_EOL;
             $contents .= '{' . PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
@@ -169,10 +168,9 @@ class BackendBlocksStructure
             $contents = '<?php' . PHP_EOL;
             $contents .= $this->helper->getSignature('SaveButton.php');
             $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Block' . '\\' . 'Adminhtml' . '\\' . $entityName . '\\' . 'Edit;' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= 'use Magento\\Framework\\View\\Element\\UiComponent\\Control\\ButtonProviderInterface;' . PHP_EOL;
-            $contents .= 'use Magento\\Ui\\Component\\Control\\Container;' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= 'class SaveButton extends GenericButton implements ButtonProviderInterface' . PHP_EOL;
             $contents .= '{' . PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
@@ -190,7 +188,7 @@ class BackendBlocksStructure
             $contents .= '        ];' . PHP_EOL;
             $contents .= '    }' . PHP_EOL;
             $contents .= '}' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= PHP_EOL;
             if ($this->filesystemIo->write($saveButtonFile, $contents)) {
                 return true;
             }
