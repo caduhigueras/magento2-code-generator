@@ -263,11 +263,21 @@ class Generate extends Command
                     $columnLengthAnswer = $helper->ask($input, $output, $columnLength);
                     $column['length'] = $columnLengthAnswer;
                 } elseif ($columnTypeAnswer === 'int' || $columnTypeAnswer === 'smallint' || $columnTypeAnswer === 'decimal') {
-                    $columnUnsigned = new Question('<fg=green>Unsigned</> (true/false) - press enter to skip:' . PHP_EOL, 'n');
+                    $columnUnsigned = new Question('<fg=green>Unsigned</> (true/false) - press enter to skip:' . PHP_EOL, 'false');
                     $columnUnsignedAnswer = $helper->ask($input, $output, $columnUnsigned);
-                    if ($columnUnsignedAnswer !== 'n') {
+                    if (in_array($columnUnsignedAnswer, ['true', 'false'])) {
                         $column['unsigned'] = $columnUnsignedAnswer;
                     }
+                }
+
+                if ($columnTypeAnswer === 'decimal') {
+                    $columnScale = new Question('<fg=green>Scale</> (Default: 6) - press enter to skip:' . PHP_EOL, '6');
+                    $columnScaleAnswer = $helper->ask($input, $output, $columnScale);
+                    $column['scale'] = $columnScaleAnswer;
+
+                    $columnPrecision = new Question('<fg=green>Precision</> (Default: 20) - press enter to skip:' . PHP_EOL, '20');
+                    $columnPrecision = $helper->ask($input, $output, $columnPrecision);
+                    $column['precision'] = $columnPrecision;
                 }
                 $columnDefault = new Question('Add <fg=green>default value</> (press enter to skip):' . PHP_EOL, 'n');
                 $columnDefaultAnswer = $helper->ask($input, $output, $columnDefault);

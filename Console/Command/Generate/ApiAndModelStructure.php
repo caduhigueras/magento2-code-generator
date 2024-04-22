@@ -896,9 +896,35 @@ class ApiAndModelStructure
                 $contents .= '     */' . PHP_EOL;
                 $contents .= '    public function get' . $this->helper->convertToUpperCamelCase($column['name']) . '(): ' . $returnTypeSignature . PHP_EOL;
                 $contents .= '    {' . PHP_EOL;
-                $contents .= '        return $this->getData(self::' . strtoupper($column['name']) . ');' . PHP_EOL;
+                if (in_array($column['type'], ['int', 'smallint']) && $column['nullable'] === 'false') {
+                    $contents .= '        return (int) $this->getData(self::' . strtoupper($column['name']) . ');' . PHP_EOL;
+                } elseif (in_array($column['type'], ['int', 'smallint']) && $column['nullable'] === 'true') {
+                    $contents .= '        $data =  $this->getData(self::' . strtoupper($column['name']) . ');' . PHP_EOL;
+                    $contents .= '        if ($data !== null) {' . PHP_EOL;
+                    $contents .= '            $data = (int) $data;' . PHP_EOL;
+                    $contents .= '        }' . PHP_EOL;
+                    $contents .= '        return $data;' . PHP_EOL;
+                } elseif ($column['type'] === 'decimal' && $column['nullable'] === 'false') {
+                    $contents .= '        return floatval($this->getData(self::' . strtoupper($column['name']) . '));' . PHP_EOL;
+                } elseif ($column['type'] === 'decimal' && $column['nullable'] === 'true') {
+                    $contents .= '        $data = $this->getData(self::' . strtoupper($column['name']) . ');' . PHP_EOL;
+                    $contents .= '        if ($data !== null) {' . PHP_EOL;
+                    $contents .= '            $data = floatval($data);' . PHP_EOL;
+                    $contents .= '        }' . PHP_EOL;
+                    $contents .= '        return $data;' . PHP_EOL;
+                } elseif ($column['type'] === 'boolean' && $column['nullable'] === 'false') {
+                    $contents .= '        return boolval($this->getData(self::' . strtoupper($column['name']) . '));' . PHP_EOL;
+                } elseif ($column['type'] === 'boolean' && $column['nullable'] === 'true') {
+                    $contents .= '        $data = $this->getData(self::' . strtoupper($column['name']) . ');' . PHP_EOL;
+                    $contents .= '        if ($data !== null) {' . PHP_EOL;
+                    $contents .= '            $data = boolval($data);' . PHP_EOL;
+                    $contents .= '        }' . PHP_EOL;
+                    $contents .= '        return $data;' . PHP_EOL;
+                } else {
+                    $contents .= '        return $this->getData(self::' . strtoupper($column['name']) . ');' . PHP_EOL;
+                }
                 $contents .= '    }' . PHP_EOL;
-                $contents .= '' . PHP_EOL;
+                $contents .= PHP_EOL;
             }
             $contents .= '    /**' . PHP_EOL;
             $contents .= '     * @param mixed $storeId' . PHP_EOL;
@@ -908,7 +934,7 @@ class ApiAndModelStructure
             $contents .= '    {' . PHP_EOL;
             $contents .= '        $this->setData(self::STORE_ID, $storeId);' . PHP_EOL;
             $contents .= '    }' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= PHP_EOL;
             //defining setters
             foreach ($dbColumns as $column) {
                 if (in_array($column['type'], ['int', 'smallint'])) {
@@ -934,10 +960,10 @@ class ApiAndModelStructure
                 $contents .= '    {' . PHP_EOL;
                 $contents .= '        $this->setData(self::' . strtoupper($column['name']) . ', $' . $this->helper->convertToLowerCamelCase($column['name']) . ');' . PHP_EOL;
                 $contents .= '    }' . PHP_EOL;
-                $contents .= '' . PHP_EOL;
+                $contents .= PHP_EOL;
             }
             $contents .= '}' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= PHP_EOL;
             if ($this->filesystemIo->write($filePath, $contents)) {
                 return true;
             }

@@ -249,7 +249,7 @@ class BackendControllersStructure
             $contents = '<?php' . PHP_EOL;
             $contents .= $this->helper->getSignature('Save.php');
             $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Controller' . '\\' . 'Adminhtml' . '\\' . $entityName . ';' . PHP_EOL;
-            $contents .='' . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= 'use Magento\Backend\App\Action\Context;' . PHP_EOL;
             $contents .= 'use Magento\Backend\Model\View\Result\Redirect;' . PHP_EOL;
             $contents .= 'use Magento\Framework\App\Request\DataPersistorInterface;' . PHP_EOL;
@@ -257,17 +257,17 @@ class BackendControllersStructure
             $contents .= 'use Magento\Framework\Serialize\SerializerInterface;' . PHP_EOL;
             $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . $entityName . 'Factory;' . PHP_EOL;
             $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . $entityName . 'Repository;' . PHP_EOL;
-            $contents .='' . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= 'class Save extends \\Magento\\Backend\\App\\Action' . PHP_EOL;
             $contents .= '{' . PHP_EOL;
             $contents .= '    const ADMIN_RESOURCE = \'' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '::' . $snakeCaseEntityName . '\';' . PHP_EOL;
-            $contents .='' . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= '    private ' . $entityName . 'Factory $' . $lowerCamelCaseEntityName . 'Factory;' . PHP_EOL;
             $contents .= '    private ' . $entityName . 'Repository $' . $lowerCamelCaseEntityName . 'Repository;' . PHP_EOL;
             $contents .= '    private DataPersistorInterface $dataPersistor;' . PHP_EOL;
             $contents .= '    private Context $context;' . PHP_EOL;
             $contents .= '    private SerializerInterface $json;' . PHP_EOL;
-            $contents .='' . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
             $contents .= '     * @param Context $context' . PHP_EOL;
             $contents .= '     * @param ' . $entityName . 'Factory $' . $lowerCamelCaseEntityName . 'Factory' . PHP_EOL;
@@ -289,7 +289,7 @@ class BackendControllersStructure
             $contents .= '        $this->dataPersistor = $dataPersistor;' . PHP_EOL;
             $contents .= '        parent::__construct($context);' . PHP_EOL;
             $contents .= '    }' . PHP_EOL;
-            $contents .='' . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
             $contents .= '     * @return Redirect' . PHP_EOL;
             $contents .= '     */' . PHP_EOL;
@@ -303,12 +303,15 @@ class BackendControllersStructure
             $contents .= '            if (empty($data[\'' . $dbColumns[0]['backend_fieldset'] . '\'][\'id\'])) {' . PHP_EOL;
             $contents .= '                $' . $lowerCamelCaseEntityName . 'Data[\'id\'] = null;' . PHP_EOL;
             $contents .= '            }' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= '            //iterate through fieldSets and assign them to the $' . $lowerCamelCaseEntityName . 'Data[]' . PHP_EOL;
             $contents .= '            $fieldSets = [';
             $fieldSets = [];
             $fieldSetNames = [];
             $serializedColumns = [];
+            $intColumns = [];
+            $boolColumns = [];
+            $floatColumns = [];
             foreach ($dbColumns as $column) {
                 if(!in_array($column['backend_fieldset'], $fieldSets)){
                     array_push($fieldSets, $column['backend_fieldset']);
@@ -316,6 +319,15 @@ class BackendControllersStructure
                 }
                 if (in_array($column['backend_type'], ['imageUploader', 'fileUploader', 'dynamicRow'])) {
                     array_push($serializedColumns, [$column['name'],$column['backend_fieldset']]);
+                }
+                if (in_array($column['type'], ['int', 'smallint'])) {
+                    array_push($intColumns, [$column['name'],$column['backend_fieldset']]);
+                }
+                if ($column['type'] === 'boolean') {
+                    array_push($boolColumns, [$column['name'],$column['backend_fieldset']]);
+                }
+                if ($column['type'] === 'decimal') {
+                    array_push($floatColumns, [$column['name'],$column['backend_fieldset']]);
                 }
             }
             $contents .= implode(', ', $fieldSetNames);
@@ -325,14 +337,37 @@ class BackendControllersStructure
             $contents .= '                    $' . $lowerCamelCaseEntityName . 'Data[$field] = $value;' . PHP_EOL;
             $contents .= '                }' . PHP_EOL;
             $contents .= '            }' . PHP_EOL;
-            $contents .= '' . PHP_EOL;
-            //TODO: add serializer for dynamic rows / files
+            $contents .=  PHP_EOL;
             if (count($serializedColumns) > 0) {
                 foreach ($serializedColumns as $column) {
-                    $contents .= '            if (isset($data[\'' . $column[1] . '\'])) {' . PHP_EOL;
-                    $contents .= '              $' . $lowerCamelCaseEntityName . 'Data[\'' . $column[0] . '\'] = $this->json->serialize($data[\'' . $column[1] . '\'][\'' . $column[0] . '\']);' . PHP_EOL;
+                    $contents .= '            if (isset($data[\'' . $column[1] . '\']) && isset($data[\'' . $column[1] . '\'][\'' . $column[0] . '\'])) {' . PHP_EOL;
+                    $contents .= '                $' . $lowerCamelCaseEntityName . 'Data[\'' . $column[0] . '\'] = $this->json->serialize($data[\'' . $column[1] . '\'][\'' . $column[0] . '\']);' . PHP_EOL;
                     $contents .= '            }' . PHP_EOL;
-                    $contents .= '' . PHP_EOL;
+                    $contents .= PHP_EOL;
+                }
+            }
+            if (count($intColumns) > 0) {
+                foreach ($intColumns as $column) {
+                    $contents .= '            if (isset($data[\'' . $column[1] . '\']) && isset($data[\'' . $column[1] . '\'][\'' . $column[0] . '\'])) {' . PHP_EOL;
+                    $contents .= '                $' . $lowerCamelCaseEntityName . 'Data[\'' . $column[0] . '\'] = (int) $data[\'' . $column[1] . '\'][\'' . $column[0] . '\'];' . PHP_EOL;
+                    $contents .= '            }' . PHP_EOL;
+                    $contents .= PHP_EOL;
+                }
+            }
+            if (count($boolColumns) > 0) {
+                foreach ($boolColumns as $column) {
+                    $contents .= '            if (isset($data[\'' . $column[1] . '\']) && isset($data[\'' . $column[1] . '\'][\'' . $column[0] . '\'])) {' . PHP_EOL;
+                    $contents .= '                $' . $lowerCamelCaseEntityName . 'Data[\'' . $column[0] . '\'] = boolval($data[\'' . $column[1] . '\'][\'' . $column[0] . '\']);' . PHP_EOL;
+                    $contents .= '            }' . PHP_EOL;
+                    $contents .= PHP_EOL;
+                }
+            }
+            if (count($floatColumns) > 0) {
+                foreach ($floatColumns as $column) {
+                    $contents .= '            if (isset($data[\'' . $column[1] . '\']) && isset($data[\'' . $column[1] . '\'][\'' . $column[0] . '\'])) {' . PHP_EOL;
+                    $contents .= '                $' . $lowerCamelCaseEntityName . 'Data[\'' . $column[0] . '\'] = floatval($data[\'' . $column[1] . '\'][\'' . $column[0] . '\']);' . PHP_EOL;
+                    $contents .= '            }' . PHP_EOL;
+                    $contents .= PHP_EOL;
                 }
             }
             $contents .= '            $' . $lowerCamelCaseEntityName . 'Model = $this->' . $lowerCamelCaseEntityName . 'Factory->create();' . PHP_EOL;
@@ -355,12 +390,12 @@ class BackendControllersStructure
             $contents .= '            } catch (\Exception $e) {' . PHP_EOL;
             $contents .= '                $this->messageManager->addExceptionMessage($e, __(\'Something went wrong while saving the ' . $title . '.\'));' . PHP_EOL;
             $contents .= '            }' . PHP_EOL;
-            $contents .='' . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= '            return $resultRedirect->setPath(\'*/*/edit\', [\'id\' => $' . $lowerCamelCaseEntityName . 'Data[\'id\']]);' . PHP_EOL;
             $contents .= '        }' . PHP_EOL;
             $contents .= '        return $resultRedirect->setPath(\'' . $frontName . '/index/index\');' . PHP_EOL;
             $contents .= '    }' . PHP_EOL;
-            $contents .='' . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= '    public function process' . $entityName . 'Return($model, $data, $resultRedirect)' . PHP_EOL;
             $contents .= '    {' . PHP_EOL;
             $contents .= '        $redirect = $this->getRequest()->getParam(\'back\');' . PHP_EOL;
@@ -372,7 +407,7 @@ class BackendControllersStructure
             $contents .= '        return $resultRedirect;' . PHP_EOL;
             $contents .= '    }' . PHP_EOL;
             $contents .= '}' . PHP_EOL;
-            $contents .='' . PHP_EOL;
+            $contents .= PHP_EOL;
             if ($this->filesystemIo->write($controllerFile, $contents)) {
                 return true;
             }
@@ -401,22 +436,22 @@ class BackendControllersStructure
             $contents = '<?php' . PHP_EOL;
             $contents .= $this->helper->getSignature('Edit.php');
             $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Controller' . '\\' . 'Adminhtml' . '\\' . $entityName . ';' . PHP_EOL;
-            $contents .='' . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= 'use Magento\Backend\App\Action;' . PHP_EOL;
             $contents .= 'use Magento\Framework\Controller\ResultFactory;' . PHP_EOL;
             $contents .= 'use Magento\Framework\Controller\ResultInterface;' . PHP_EOL;
             $contents .= 'use Magento\Framework\Exception\NoSuchEntityException;' . PHP_EOL;
             $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . $entityName . 'Repository;' . PHP_EOL;
-            $contents .='' . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= 'class Edit extends \\Magento\\Backend\\App\\Action' . PHP_EOL;
             $contents .= '{' . PHP_EOL;
             $contents .= '    const ADMIN_RESOURCE = \'' . $vendorNamespaceArr[0] . '_' . $vendorNamespaceArr[1] . '::' . $snakeCaseEntityName . '\';' . PHP_EOL;
-            $contents .='' . PHP_EOL;
+            $contents .= PHP_EOL;
 //            $contents .= '    /**' . PHP_EOL;
 //            $contents .= '     * @var ' . $entityName . 'Repository' . PHP_EOL;
 //            $contents .= '     */' . PHP_EOL;
             $contents .= '    protected ' . $entityName . 'Repository $' . $lowerCamelCaseEntityName . 'Repository;' . PHP_EOL;
-            $contents .='' . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
             $contents .= '     * Edit constructor.' . PHP_EOL;
             $contents .= '     * @param ' . $entityName . 'Repository $' . $lowerCamelCaseEntityName . 'Repository' . PHP_EOL;
@@ -429,7 +464,7 @@ class BackendControllersStructure
             $contents .= '        $this->' . $lowerCamelCaseEntityName . 'Repository = $' . $lowerCamelCaseEntityName . 'Repository;' . PHP_EOL;
             $contents .= '        parent::__construct($context);' . PHP_EOL;
             $contents .= '    }' . PHP_EOL;
-            $contents .='' . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
             $contents .= '     * @return ResultInterface' . PHP_EOL;
             $contents .= '     * @throws NoSuchEntityException' . PHP_EOL;
@@ -443,7 +478,7 @@ class BackendControllersStructure
             $contents .= '        return $resultPage;' . PHP_EOL;
             $contents .= '    }' . PHP_EOL;
             $contents .= '}' . PHP_EOL;
-            $contents .='' . PHP_EOL;
+            $contents .= PHP_EOL;
             if ($this->filesystemIo->write($controllerFile, $contents)) {
                 return true;
             }

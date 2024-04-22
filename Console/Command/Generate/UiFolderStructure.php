@@ -318,10 +318,10 @@ class UiFolderStructure
         if (!$this->filesystemIo->fileExists($actionsFile)) {
             $contents = '<?php' . PHP_EOL;
             $contents .= $this->helper->getSignature('DataProvider.php');
-            $contents .= PHP_EOL;
             $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\Model\\Block;' . PHP_EOL;
             $contents .= PHP_EOL;
             $contents .= 'use Magento\\Framework\\App\\Request\\DataPersistorInterface;' . PHP_EOL;
+            $contents .= 'use Magento\\Framework\\Serialize\\Serializer\\Serialize;' . PHP_EOL;
             $contents .= 'use Magento\\Ui\\DataProvider\\Modifier\\PoolInterface;' . PHP_EOL;
             $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\Model\\ResourceModel\\' . $entityName . '\\CollectionFactory;' . PHP_EOL;
             $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\Model\\ResourceModel\\' . $entityName . '\\Collection;' . PHP_EOL;
@@ -334,6 +334,7 @@ class UiFolderStructure
             $contents .= '    protected $collection;' . PHP_EOL;
             $contents .= '    protected DataPersistorInterface $dataPersistor;' . PHP_EOL;
             $contents .= '    protected array $loadedData;' . PHP_EOL;
+            $contents .= '    private Serialize $json;' . PHP_EOL;
             $contents .= PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
             $contents .= '     * Constructor' . PHP_EOL;
@@ -343,6 +344,7 @@ class UiFolderStructure
             $contents .= '     * @param string $requestFieldName' . PHP_EOL;
             $contents .= '     * @param CollectionFactory $' . $lowerCamelCaseEntityName . 'CollectionFactory' . PHP_EOL;
             $contents .= '     * @param DataPersistorInterface $dataPersistor' . PHP_EOL;
+            $contents .= '     * @param Serialize $json' . PHP_EOL;
             $contents .= '     * @param array $meta' . PHP_EOL;
             $contents .= '     * @param array $data' . PHP_EOL;
             $contents .= '     * @param PoolInterface|null $pool' . PHP_EOL;
@@ -353,13 +355,15 @@ class UiFolderStructure
             $contents .= '        $requestFieldName,' . PHP_EOL;
             $contents .= '        CollectionFactory $' . $lowerCamelCaseEntityName . 'CollectionFactory,' . PHP_EOL;
             $contents .= '        DataPersistorInterface $dataPersistor,' . PHP_EOL;
+            $contents .= '        Serialize $json,' . PHP_EOL;
             $contents .= '        array $meta = [],' . PHP_EOL;
             $contents .= '        array $data = [],' . PHP_EOL;
             $contents .= '        PoolInterface $pool = null' . PHP_EOL;
             $contents .= '    ) {' . PHP_EOL;
+            $contents .= '        parent::__construct($name, $primaryFieldName, $requestFieldName, $meta, $data, $pool);' . PHP_EOL;
             $contents .= '        $this->collection = $' . $lowerCamelCaseEntityName . 'CollectionFactory->create();' . PHP_EOL;
             $contents .= '        $this->dataPersistor = $dataPersistor;' . PHP_EOL;
-            $contents .= '        parent::__construct($name, $primaryFieldName, $requestFieldName, $meta, $data, $pool);' . PHP_EOL;
+            $contents .= '        $this->json = $json;' . PHP_EOL;
             $contents .= '    }' . PHP_EOL;
             $contents .=' ' . PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
