@@ -75,10 +75,10 @@ class BackendControllersStructure
      * @param $dbName
      * @param $frontName
      * @param $menuPosition
+     * @param $uiFormStyle
      * @return array
-     * @throws \Magento\Framework\Exception\FileSystemException
      */
-    public function generateBackendRoutesAndControllers($vendorNamespaceArr, $entityName, $dbColumns, $dbName, $frontName, $menuPosition)
+    public function generateBackendRoutesAndControllers($vendorNamespaceArr, $entityName, $dbColumns, $dbName, $frontName, $menuPosition, $uiFormStyle)
     {
         $result = [];
         $appFolder = $this->filesystem->getDirectoryWrite(\Magento\Framework\App\Filesystem\DirectoryList::APP);
@@ -118,7 +118,7 @@ class BackendControllersStructure
             $result['message'] = 'Could not create Entity/Edit.php file';
             return $result;
         }
-        if (!$this->generateEntitySaveController($appFolderPath, $vendorNamespaceArr, $entityName, $frontName, $dbColumns)) {
+        if (!$this->generateEntitySaveController($appFolderPath, $vendorNamespaceArr, $entityName, $frontName, $dbColumns, $uiFormStyle)) {
             $result['success'] = false;
             $result['message'] = 'Could not create Entity/Save.php file';
             return $result;
@@ -236,9 +236,10 @@ class BackendControllersStructure
      * @param $entityName
      * @param $frontName
      * @param $dbColumns
+     * @param $uiFormStyle
      * @return bool
      */
-    public function generateEntitySaveController($appFolderPath, $vendorNamespaceArr, $entityName, $frontName, $dbColumns)
+    public function generateEntitySaveController($appFolderPath, $vendorNamespaceArr, $entityName, $frontName, $dbColumns, $uiFormStyle)
     {
         $entityControllerFolder = $appFolderPath . 'code' . '/' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Controller/Adminhtml/' . $entityName;
         $controllerFile = $entityControllerFolder . '/' . 'Save.php';
@@ -300,75 +301,19 @@ class BackendControllersStructure
             $contents .= '        $data = $this->getRequest()->getPostValue();' . PHP_EOL;
             $contents .= '        if ($data) {' . PHP_EOL;
             $contents .= '            $' . $lowerCamelCaseEntityName . 'Data = [];' . PHP_EOL;
-            $contents .= '            if (empty($data[\'' . $dbColumns[0]['backend_fieldset'] . '\'][\'id\'])) {' . PHP_EOL;
+            if ($uiFormStyle === '2') {
+                $contents .= '            if (empty($data[\'' . $dbColumns[0]['backend_fieldset'] . '\'][\'id\'])) {' . PHP_EOL;
+            } else {
+                $contents .= '            if (empty($data[\'id\'])) {' . PHP_EOL;
+            }
             $contents .= '                $' . $lowerCamelCaseEntityName . 'Data[\'id\'] = null;' . PHP_EOL;
             $contents .= '            }' . PHP_EOL;
             $contents .= PHP_EOL;
-            $contents .= '            //iterate through fieldSets and assign them to the $' . $lowerCamelCaseEntityName . 'Data[]' . PHP_EOL;
-            $contents .= '            $fieldSets = [';
-            $fieldSets = [];
-            $fieldSetNames = [];
-            $serializedColumns = [];
-            $intColumns = [];
-            $boolColumns = [];
-            $floatColumns = [];
-            foreach ($dbColumns as $column) {
-                if(!in_array($column['backend_fieldset'], $fieldSets)){
-                    array_push($fieldSets, $column['backend_fieldset']);
-                    array_push($fieldSetNames, '"' . $column['backend_fieldset'] . '"');
-                }
-                if (in_array($column['backend_type'], ['imageUploader', 'fileUploader', 'dynamicRow'])) {
-                    array_push($serializedColumns, [$column['name'],$column['backend_fieldset']]);
-                }
-                if (in_array($column['type'], ['int', 'smallint'])) {
-                    array_push($intColumns, [$column['name'],$column['backend_fieldset']]);
-                }
-                if ($column['type'] === 'boolean') {
-                    array_push($boolColumns, [$column['name'],$column['backend_fieldset']]);
-                }
-                if ($column['type'] === 'decimal') {
-                    array_push($floatColumns, [$column['name'],$column['backend_fieldset']]);
-                }
-            }
-            $contents .= implode(', ', $fieldSetNames);
-            $contents .= '];' . PHP_EOL;
-            $contents .= '            foreach ($fieldSets as $fieldset) {' . PHP_EOL;
-            $contents .= '                foreach ($data[$fieldset] as $field => $value) {' . PHP_EOL;
-            $contents .= '                    $' . $lowerCamelCaseEntityName . 'Data[$field] = $value;' . PHP_EOL;
-            $contents .= '                }' . PHP_EOL;
-            $contents .= '            }' . PHP_EOL;
-            $contents .=  PHP_EOL;
-            if (count($serializedColumns) > 0) {
-                foreach ($serializedColumns as $column) {
-                    $contents .= '            if (isset($data[\'' . $column[1] . '\']) && isset($data[\'' . $column[1] . '\'][\'' . $column[0] . '\'])) {' . PHP_EOL;
-                    $contents .= '                $' . $lowerCamelCaseEntityName . 'Data[\'' . $column[0] . '\'] = $this->json->serialize($data[\'' . $column[1] . '\'][\'' . $column[0] . '\']);' . PHP_EOL;
-                    $contents .= '            }' . PHP_EOL;
-                    $contents .= PHP_EOL;
-                }
-            }
-            if (count($intColumns) > 0) {
-                foreach ($intColumns as $column) {
-                    $contents .= '            if (isset($data[\'' . $column[1] . '\']) && isset($data[\'' . $column[1] . '\'][\'' . $column[0] . '\'])) {' . PHP_EOL;
-                    $contents .= '                $' . $lowerCamelCaseEntityName . 'Data[\'' . $column[0] . '\'] = (int) $data[\'' . $column[1] . '\'][\'' . $column[0] . '\'];' . PHP_EOL;
-                    $contents .= '            }' . PHP_EOL;
-                    $contents .= PHP_EOL;
-                }
-            }
-            if (count($boolColumns) > 0) {
-                foreach ($boolColumns as $column) {
-                    $contents .= '            if (isset($data[\'' . $column[1] . '\']) && isset($data[\'' . $column[1] . '\'][\'' . $column[0] . '\'])) {' . PHP_EOL;
-                    $contents .= '                $' . $lowerCamelCaseEntityName . 'Data[\'' . $column[0] . '\'] = boolval($data[\'' . $column[1] . '\'][\'' . $column[0] . '\']);' . PHP_EOL;
-                    $contents .= '            }' . PHP_EOL;
-                    $contents .= PHP_EOL;
-                }
-            }
-            if (count($floatColumns) > 0) {
-                foreach ($floatColumns as $column) {
-                    $contents .= '            if (isset($data[\'' . $column[1] . '\']) && isset($data[\'' . $column[1] . '\'][\'' . $column[0] . '\'])) {' . PHP_EOL;
-                    $contents .= '                $' . $lowerCamelCaseEntityName . 'Data[\'' . $column[0] . '\'] = floatval($data[\'' . $column[1] . '\'][\'' . $column[0] . '\']);' . PHP_EOL;
-                    $contents .= '            }' . PHP_EOL;
-                    $contents .= PHP_EOL;
-                }
+            /** if 2 columns, need to provide data through fieldsets */
+            if ($uiFormStyle === '2') {
+                $contents .= $this->getFieldsetSeparatedData($lowerCamelCaseEntityName, $dbColumns);
+            } else {
+                $contents .= $this->getSingleColumnData($lowerCamelCaseEntityName, $dbColumns);
             }
             $contents .= '            $' . $lowerCamelCaseEntityName . 'Model = $this->' . $lowerCamelCaseEntityName . 'Factory->create();' . PHP_EOL;
             $contents .= '            if ($' . $lowerCamelCaseEntityName . 'Data[\'id\']) {' . PHP_EOL;
@@ -857,5 +802,141 @@ class BackendControllersStructure
             //TODO: define action when file already exists
             return true;
         }
+    }
+
+    private function getFieldsetSeparatedData(string $lowerCamelCaseEntityName, $dbColumns)
+    {
+        $contents = '            //iterate through fieldSets and assign them to the $' . $lowerCamelCaseEntityName . 'Data[]' . PHP_EOL;
+        $contents .= '            $fieldSets = [';
+        $fieldSets = [];
+        $fieldSetNames = [];
+        $serializedColumns = [];
+        $intColumns = [];
+        $boolColumns = [];
+        $floatColumns = [];
+        foreach ($dbColumns as $column) {
+            if(!in_array($column['backend_fieldset'], $fieldSets)){
+                array_push($fieldSets, $column['backend_fieldset']);
+                array_push($fieldSetNames, '"' . $column['backend_fieldset'] . '"');
+            }
+            if (in_array($column['backend_type'], ['imageUploader', 'fileUploader', 'dynamicRow'])) {
+                array_push($serializedColumns, [$column['name'],$column['backend_fieldset']]);
+            }
+            if (in_array($column['type'], ['int', 'smallint'])) {
+                array_push($intColumns, [$column['name'],$column['backend_fieldset']]);
+            }
+            if ($column['type'] === 'boolean') {
+                array_push($boolColumns, [$column['name'],$column['backend_fieldset']]);
+            }
+            if ($column['type'] === 'decimal') {
+                array_push($floatColumns, [$column['name'],$column['backend_fieldset']]);
+            }
+        }
+        $contents .= implode(', ', $fieldSetNames);
+        $contents .= '];' . PHP_EOL;
+        $contents .= '            foreach ($fieldSets as $fieldset) {' . PHP_EOL;
+        $contents .= '                foreach ($data[$fieldset] as $field => $value) {' . PHP_EOL;
+        $contents .= '                    $' . $lowerCamelCaseEntityName . 'Data[$field] = $value;' . PHP_EOL;
+        $contents .= '                }' . PHP_EOL;
+        $contents .= '            }' . PHP_EOL;
+        $contents .=  PHP_EOL;
+        if (count($serializedColumns) > 0) {
+            foreach ($serializedColumns as $column) {
+                $contents .= '            if (isset($data[\'' . $column[1] . '\']) && isset($data[\'' . $column[1] . '\'][\'' . $column[0] . '\'])) {' . PHP_EOL;
+                $contents .= '                $' . $lowerCamelCaseEntityName . 'Data[\'' . $column[0] . '\'] = $this->json->serialize($data[\'' . $column[1] . '\'][\'' . $column[0] . '\']);' . PHP_EOL;
+                $contents .= '            }' . PHP_EOL;
+                $contents .= PHP_EOL;
+            }
+        }
+        if (count($intColumns) > 0) {
+            foreach ($intColumns as $column) {
+                $contents .= '            if (isset($data[\'' . $column[1] . '\']) && isset($data[\'' . $column[1] . '\'][\'' . $column[0] . '\'])) {' . PHP_EOL;
+                $contents .= '                $' . $lowerCamelCaseEntityName . 'Data[\'' . $column[0] . '\'] = (int) $data[\'' . $column[1] . '\'][\'' . $column[0] . '\'];' . PHP_EOL;
+                $contents .= '            }' . PHP_EOL;
+                $contents .= PHP_EOL;
+            }
+        }
+        if (count($boolColumns) > 0) {
+            foreach ($boolColumns as $column) {
+                $contents .= '            if (isset($data[\'' . $column[1] . '\']) && isset($data[\'' . $column[1] . '\'][\'' . $column[0] . '\'])) {' . PHP_EOL;
+                $contents .= '                $' . $lowerCamelCaseEntityName . 'Data[\'' . $column[0] . '\'] = boolval($data[\'' . $column[1] . '\'][\'' . $column[0] . '\']);' . PHP_EOL;
+                $contents .= '            }' . PHP_EOL;
+                $contents .= PHP_EOL;
+            }
+        }
+        if (count($floatColumns) > 0) {
+            foreach ($floatColumns as $column) {
+                $contents .= '            if (isset($data[\'' . $column[1] . '\']) && isset($data[\'' . $column[1] . '\'][\'' . $column[0] . '\'])) {' . PHP_EOL;
+                $contents .= '                $' . $lowerCamelCaseEntityName . 'Data[\'' . $column[0] . '\'] = floatval($data[\'' . $column[1] . '\'][\'' . $column[0] . '\']);' . PHP_EOL;
+                $contents .= '            }' . PHP_EOL;
+                $contents .= PHP_EOL;
+            }
+        }
+        return $contents;
+    }
+
+    private function getSingleColumnData(string $lowerCamelCaseEntityName, $dbColumns)
+    {
+        $contents = '            //iterate through fieldSets and assign them to the $' . $lowerCamelCaseEntityName . 'Data[]' . PHP_EOL;
+        $fieldSets = [];
+        $fieldSetNames = [];
+        $serializedColumns = [];
+        $intColumns = [];
+        $boolColumns = [];
+        $floatColumns = [];
+        foreach ($dbColumns as $column) {
+            /*if(!in_array($column['backend_fieldset'], $fieldSets)){
+                array_push($fieldSets, $column['backend_fieldset']);
+            }*/
+            if (in_array($column['backend_type'], ['imageUploader', 'fileUploader', 'dynamicRow'])) {
+                array_push($serializedColumns, [$column['name'],$column['backend_fieldset']]);
+            }
+            if (in_array($column['type'], ['int', 'smallint'])) {
+                array_push($intColumns, [$column['name'],$column['backend_fieldset']]);
+            }
+            if ($column['type'] === 'boolean') {
+                array_push($boolColumns, [$column['name'],$column['backend_fieldset']]);
+            }
+            if ($column['type'] === 'decimal') {
+                array_push($floatColumns, [$column['name'],$column['backend_fieldset']]);
+            }
+        }
+        $contents .= '            foreach ($data as $field => $value) {' . PHP_EOL;
+        $contents .= '                $' . $lowerCamelCaseEntityName . 'Data[$field] = $value;' . PHP_EOL;
+        $contents .= '            }' . PHP_EOL;
+        $contents .=  PHP_EOL;
+        if (count($serializedColumns) > 0) {
+            foreach ($serializedColumns as $column) {
+                $contents .= '            if (isset($data[\'' . $column[0] . '\'])) {' . PHP_EOL;
+                $contents .= '                $' . $lowerCamelCaseEntityName . 'Data[\'' . $column[0] . '\'] = $this->json->serialize($data[\'' . $column[0] . '\']);' . PHP_EOL;
+                $contents .= '            }' . PHP_EOL;
+                $contents .= PHP_EOL;
+            }
+        }
+        if (count($intColumns) > 0) {
+            foreach ($intColumns as $column) {
+                $contents .= '            if (isset($data[\'' . $column[0] . '\'])) {' . PHP_EOL;
+                $contents .= '                $' . $lowerCamelCaseEntityName . 'Data[\'' . $column[0] . '\'] = (int) $data[\'' . $column[0] . '\'];' . PHP_EOL;
+                $contents .= '            }' . PHP_EOL;
+                $contents .= PHP_EOL;
+            }
+        }
+        if (count($boolColumns) > 0) {
+            foreach ($boolColumns as $column) {
+                $contents .= '            if (isset($data[\'' . $column[0] . '\'])) {' . PHP_EOL;
+                $contents .= '                $' . $lowerCamelCaseEntityName . 'Data[\'' . $column[0] . '\'] = boolval($data[\'' . $column[0] . '\']);' . PHP_EOL;
+                $contents .= '            }' . PHP_EOL;
+                $contents .= PHP_EOL;
+            }
+        }
+        if (count($floatColumns) > 0) {
+            foreach ($floatColumns as $column) {
+                $contents .= '            if (isset($data[\'' . $column[0] . '\'])) {' . PHP_EOL;
+                $contents .= '                $' . $lowerCamelCaseEntityName . 'Data[\'' . $column[0] . '\'] = floatval($data[\'' . $column[0] . '\']);' . PHP_EOL;
+                $contents .= '            }' . PHP_EOL;
+                $contents .= PHP_EOL;
+            }
+        }
+        return $contents;
     }
 }

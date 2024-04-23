@@ -174,12 +174,12 @@ class ViewAndLayoutStructure
         $editFile = $viewLayoutFolder . '/' . $snakeCaseEntityName . '_' . strtolower($entityName) . '_edit.xml';
         $indexFile = $viewLayoutFolder . '/' . $snakeCaseEntityName . '_index_index.xml';
 
-        if (!$this->generateLayoutAddFile($addFile, $snakeCaseEntityName, $snakeCaseEntityName . '_' . strtolower($entityName) . '_add.xml')) {
+        if (!$this->generateLayoutAddFile($addFile, $snakeCaseEntityName, $snakeCaseEntityName . '_' . strtolower($entityName) . '_add.xml', $uiFormStyle)) {
             $result['success'] = false;
             $result['message'] = 'Could not generate Layout Add File';
             return $result;
         }
-        if (!$this->generateLayoutEditFile($editFile, $snakeCaseEntityName, $snakeCaseEntityName . '_' . strtolower($entityName) . '_edit.xml')) {
+        if (!$this->generateLayoutEditFile($editFile, $snakeCaseEntityName, $snakeCaseEntityName . '_' . strtolower($entityName) . '_edit.xml', $uiFormStyle)) {
             $result['success'] = false;
             $result['message'] = 'Could not generate Layout Edit File';
             return $result;
@@ -204,7 +204,7 @@ class ViewAndLayoutStructure
             }
         } else {
             /** Generate UI Form with 1 column */
-            if (!$this->generateUiFormFile($formFile, $snakeCaseEntityName, $title, $entityName, $vendorNamespaceArr, $dbColumns, $frontName, $snakeCaseEntityName . '_form.xml', true)) {
+            if (!$this->generateSingleColumnUiFormFile($formFile, $snakeCaseEntityName, $title, $entityName, $vendorNamespaceArr, $dbColumns, $frontName, $snakeCaseEntityName . '_form.xml')) {
                 $result['success'] = false;
                 $result['message'] = 'Could not generate Ui Form Xml File';
                 return $result;
@@ -275,42 +275,43 @@ class ViewAndLayoutStructure
             $contents .= '        </argument>' . PHP_EOL;
             $contents .= '    </dataSource>' . PHP_EOL;
             $fieldSets = $this->formatFieldSets($dbColumns);
-            if (!in_array('general', $fieldSets)) {
-                $contents .= '    <fieldset name="general"><!--New fieldsets must be added at: ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Ui/Component/DataProvider.php-->' . PHP_EOL;
-                $contents .= '        <argument name="data" xsi:type="array">' . PHP_EOL;
-                $contents .= '            <item name="config" xsi:type="array">' . PHP_EOL;
-                $contents .= '                <item name="label" xsi:type="string" translate="true">General</item>' . PHP_EOL;
-                $contents .= '            </item>' . PHP_EOL;
-                $contents .= '        </argument>' . PHP_EOL;
-                $contents .= '        <field name="store_id" formElement="select">' . PHP_EOL;
-                $contents .= '            <argument name="data" xsi:type="array">' . PHP_EOL;
-                $contents .= '                <item name="config" xsi:type="array">' . PHP_EOL;
-                $contents .= '                    <item name="source" xsi:type="string">block</item>' . PHP_EOL;
-                $contents .= '                    <item name="default" xsi:type="number">0</item>' . PHP_EOL;
-                $contents .= '                </item>' . PHP_EOL;
-                $contents .= '            </argument>' . PHP_EOL;
-                $contents .= '            <settings>' . PHP_EOL;
-                $contents .= '                <validation>' . PHP_EOL;
-                $contents .= '                    <rule name="required-entry" xsi:type="boolean">true</rule>' . PHP_EOL;
-                $contents .= '                </validation>' . PHP_EOL;
-                $contents .= '                <dataType>int</dataType>' . PHP_EOL;
-                $contents .= '                <tooltip>' . PHP_EOL;
-                $contents .= '                    <link>https://docs.magento.com/m2/ce/user_guide/configuration/scope.html</link>' . PHP_EOL;
-                $contents .= '                    <description>What is this?</description>' . PHP_EOL;
-                $contents .= '                </tooltip>' . PHP_EOL;
-                $contents .= '                <label translate="true">Store View</label>' . PHP_EOL;
-                $contents .= '                <dataScope>store_id</dataScope>' . PHP_EOL;
-                $contents .= '            </settings>' . PHP_EOL;
-                $contents .= '            <formElements>' . PHP_EOL;
-                $contents .= '                <select>' . PHP_EOL;
-                $contents .= '                    <settings>' . PHP_EOL;
-                $contents .= '                        <options class="Magento\\Cms\\Ui\\Component\\Listing\\Column\\Cms\\Options"/>' . PHP_EOL;
-                $contents .= '                    </settings>' . PHP_EOL;
-                $contents .= '                </select>' . PHP_EOL;
-                $contents .= '            </formElements>' . PHP_EOL;
-                $contents .= '        </field>' . PHP_EOL;
-                $contents .= '    </fieldset>' . PHP_EOL;
-            } else {
+            $firstKey = array_key_first($fieldSets);
+//            if (!in_array('general', $fieldSets)) {
+//                $contents .= '    <fieldset name="general"><!--New fieldsets must be added at: ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Ui/Component/DataProvider.php-->' . PHP_EOL;
+//                $contents .= '        <argument name="data" xsi:type="array">' . PHP_EOL;
+//                $contents .= '            <item name="config" xsi:type="array">' . PHP_EOL;
+//                $contents .= '                <item name="label" xsi:type="string" translate="true">General</item>' . PHP_EOL;
+//                $contents .= '            </item>' . PHP_EOL;
+//                $contents .= '        </argument>' . PHP_EOL;
+//                $contents .= '        <field name="store_id" formElement="select">' . PHP_EOL;
+//                $contents .= '            <argument name="data" xsi:type="array">' . PHP_EOL;
+//                $contents .= '                <item name="config" xsi:type="array">' . PHP_EOL;
+//                $contents .= '                    <item name="source" xsi:type="string">block</item>' . PHP_EOL;
+//                $contents .= '                    <item name="default" xsi:type="number">0</item>' . PHP_EOL;
+//                $contents .= '                </item>' . PHP_EOL;
+//                $contents .= '            </argument>' . PHP_EOL;
+//                $contents .= '            <settings>' . PHP_EOL;
+//                $contents .= '                <validation>' . PHP_EOL;
+//                $contents .= '                    <rule name="required-entry" xsi:type="boolean">true</rule>' . PHP_EOL;
+//                $contents .= '                </validation>' . PHP_EOL;
+//                $contents .= '                <dataType>int</dataType>' . PHP_EOL;
+//                $contents .= '                <tooltip>' . PHP_EOL;
+//                $contents .= '                    <link>https://docs.magento.com/m2/ce/user_guide/configuration/scope.html</link>' . PHP_EOL;
+//                $contents .= '                    <description>What is this?</description>' . PHP_EOL;
+//                $contents .= '                </tooltip>' . PHP_EOL;
+//                $contents .= '                <label translate="true">Store View</label>' . PHP_EOL;
+//                $contents .= '                <dataScope>store_id</dataScope>' . PHP_EOL;
+//                $contents .= '            </settings>' . PHP_EOL;
+//                $contents .= '            <formElements>' . PHP_EOL;
+//                $contents .= '                <select>' . PHP_EOL;
+//                $contents .= '                    <settings>' . PHP_EOL;
+//                $contents .= '                        <options class="Magento\\Cms\\Ui\\Component\\Listing\\Column\\Cms\\Options"/>' . PHP_EOL;
+//                $contents .= '                    </settings>' . PHP_EOL;
+//                $contents .= '                </select>' . PHP_EOL;
+//                $contents .= '            </formElements>' . PHP_EOL;
+//                $contents .= '        </field>' . PHP_EOL;
+//                $contents .= '    </fieldset>' . PHP_EOL;
+//            } else {
                 $storeContent = '        <field name="store_id" formElement="select">' . PHP_EOL;
                 $storeContent .= '            <argument name="data" xsi:type="array">' . PHP_EOL;
                 $storeContent .= '                <item name="config" xsi:type="array">' . PHP_EOL;
@@ -340,10 +341,10 @@ class ViewAndLayoutStructure
                 $storeContent .= '        </field>' . PHP_EOL;
                 $storeColumn = [];
                 $storeColumn['backend_type'] = 'store_id';
-                $storeColumn['backend_fieldset'] = 'general';
+                $storeColumn['backend_fieldset'] = $fieldSets[$firstKey];
                 $storeColumn['store_structure'] = $storeContent;
                 array_push($dbColumns, $storeColumn);
-            }
+//            }
             foreach ($fieldSets as $fieldSet) {
                 $contents .= '    <fieldset name="' . $fieldSet . '"><!--New fieldsets must be added at: ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Ui/Component/DataProvider.php-->' . PHP_EOL;
                 $contents .= '        <argument name="data" xsi:type="array">' . PHP_EOL;
@@ -568,14 +569,19 @@ class ViewAndLayoutStructure
      * @param $addFile
      * @param $snakeCaseEntityName
      * @param $fileName
+     * @param $uiFormStyle
      * @return bool
      */
-    public function generateLayoutAddFile($addFile, $snakeCaseEntityName, $fileName)
+    public function generateLayoutAddFile($addFile, $snakeCaseEntityName, $fileName, $uiFormStyle)
     {
         if (!$this->filesystemIo->fileExists($addFile)){
+            $layout = '';
+            if ($uiFormStyle === '2') {
+                $layout = 'layout="admin-2columns-left" ';
+            }
             $contents = '<?xml version="1.0"?>' . PHP_EOL;
             $contents .= $this->helper->getXmlSignature($fileName);
-            $contents .= '<page layout="admin-2columns-left" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">' . PHP_EOL;
+            $contents .= '<page ' . $layout . 'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">' . PHP_EOL;
             $contents .= '    <body>' . PHP_EOL;
             $contents .= '        <referenceContainer name="content">' . PHP_EOL;
             $contents .= '            <uiComponent name="' . $snakeCaseEntityName . '_form"/>' . PHP_EOL;
@@ -596,14 +602,19 @@ class ViewAndLayoutStructure
      * @param $editFile
      * @param $snakeCaseEntityName
      * @param $fileName
+     * @param $uiFormStyle
      * @return bool
      */
-    public function generateLayoutEditFile($editFile, $snakeCaseEntityName, $fileName)
+    public function generateLayoutEditFile($editFile, $snakeCaseEntityName, $fileName, $uiFormStyle)
     {
         if (!$this->filesystemIo->fileExists($editFile)){
+            $layout = '';
+            if ($uiFormStyle === '2') {
+                $layout = 'layout="admin-2columns-left" ';
+            }
             $contents = '<?xml version="1.0"?>' . PHP_EOL;
             $contents .= $this->helper->getXmlSignature($fileName);
-            $contents .= '<page layout="admin-2columns-left" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">' . PHP_EOL;
+            $contents .= '<page ' . $layout . 'xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">' . PHP_EOL;
             $contents .= '    <update handle="styles"/>' . PHP_EOL;
             $contents .= '    <update handle="editor"/>' . PHP_EOL;
             $contents .= '    <body>' . PHP_EOL;
@@ -613,6 +624,176 @@ class ViewAndLayoutStructure
             $contents .= '    </body>' . PHP_EOL;
             $contents .= '</page>' . PHP_EOL;
             if ($this->filesystemIo->write($editFile, $contents)) {
+                return true;
+            }
+            return false;
+        } else {
+            //TODO: define action when file already exists
+            return true;
+        }
+    }
+
+    public function generateSingleColumnUiFormFile(string $formFile, string $snakeCaseEntityName, string $title, $entityName, $vendorNamespaceArr, $dbColumns, $frontName, string $fileName)
+    {
+        if (!$this->filesystemIo->fileExists($formFile)){
+            $contents = '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL;
+            $contents .= $this->helper->getXmlSignature($fileName);
+            $contents .= '<form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">' . PHP_EOL;
+            $contents .= '    <argument name="data" xsi:type="array">' . PHP_EOL;
+            $contents .= '        <item name="js_config" xsi:type="array">' . PHP_EOL;
+            $contents .= '            <item name="provider" xsi:type="string">' . $snakeCaseEntityName . '_form.' . $snakeCaseEntityName . '_form_data_source</item>' . PHP_EOL;
+            $contents .= '        </item>' . PHP_EOL;
+            $contents .= '        <item name="label" xsi:type="string" translate="true">' . $title . '</item>' . PHP_EOL;
+            $contents .= '        <item name="template" xsi:type="string">templates/form/collapsible</item>' . PHP_EOL;
+            $contents .= '    </argument>' . PHP_EOL;
+            $contents .= '    <settings>' . PHP_EOL;
+            $contents .= '        <buttons>' . PHP_EOL;
+            $contents .= '            <button name="back" class="' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\Block\\Adminhtml\\' . $entityName . '\\Edit\\BackButton' . '" />' . PHP_EOL;
+            $contents .= '            <button name="delete" class="' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\Block\\Adminhtml\\' . $entityName . '\\Edit\\DeleteButton' . '" />' . PHP_EOL;
+            $contents .= '            <button name="save_and_continue" class="' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\Block\\Adminhtml\\' . $entityName . '\\Edit\\SaveAndContinueButton' . '" />' . PHP_EOL;
+            $contents .= '            <button name="save" class="' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\Block\\Adminhtml\\' . $entityName . '\\Edit\\SaveButton' . '" />' . PHP_EOL;
+            $contents .= '        </buttons>' . PHP_EOL;
+            $contents .= '        <namespace>' . $snakeCaseEntityName . '_form' . '</namespace>' . PHP_EOL;
+            $contents .= '        <dataScope>data</dataScope>' . PHP_EOL;
+            $contents .= '        <deps>' . PHP_EOL;
+            $contents .= '            <dep>' . $snakeCaseEntityName . '_form.' . $snakeCaseEntityName . '_form_data_source</dep>' . PHP_EOL;
+            $contents .= '        </deps>' . PHP_EOL;
+            $contents .= '    </settings>' . PHP_EOL;
+            $contents .= '    <dataSource name="' . $snakeCaseEntityName . '_form_data_source">' . PHP_EOL;
+            $contents .= '        <argument name="data" xsi:type="array">' . PHP_EOL;
+            $contents .= '            <item name="js_config" xsi:type="array">' . PHP_EOL;
+            $contents .= '                <item name="component" xsi:type="string">Magento_Ui/js/form/provider</item>' . PHP_EOL;
+            $contents .= '            </item>' . PHP_EOL;
+            $contents .= '        </argument>' . PHP_EOL;
+            $contents .= '        <settings>' . PHP_EOL;
+            $contents .= '            <submitUrl path="' . $frontName . '/' . strtolower($entityName) . '/save" />' . PHP_EOL;
+            $contents .= '        </settings>' . PHP_EOL;
+            $contents .= '        <dataProvider class="' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\Model\\Block\\DataProvider" name="' . $snakeCaseEntityName . '_form_data_source">' . PHP_EOL;
+            $contents .= '            <settings>' . PHP_EOL;
+            $contents .= '                <requestFieldName>id</requestFieldName>' . PHP_EOL;
+            $contents .= '                <primaryFieldName>id</primaryFieldName>' . PHP_EOL;
+            $contents .= '            </settings>' . PHP_EOL;
+            $contents .= '        </dataProvider>' . PHP_EOL;
+            $contents .= '    </dataSource>' . PHP_EOL;
+            $fieldSets = $this->formatFieldSets($dbColumns);
+            $firstKey = array_key_first($fieldSets);
+//            if (!in_array('general', $fieldSets)) {
+//                $contents .= '    <fieldset name="general"><!--New fieldsets must be added at: ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Ui/Component/DataProvider.php-->' . PHP_EOL;
+//                $contents .= '        <argument name="data" xsi:type="array">' . PHP_EOL;
+//                $contents .= '            <item name="config" xsi:type="array">' . PHP_EOL;
+//                $contents .= '                <item name="label" xsi:type="string" translate="true">General</item>' . PHP_EOL;
+//                $contents .= '            </item>' . PHP_EOL;
+//                $contents .= '        </argument>' . PHP_EOL;
+//                $contents .= '        <field name="store_id" formElement="select">' . PHP_EOL;
+//                $contents .= '            <argument name="data" xsi:type="array">' . PHP_EOL;
+//                $contents .= '                <item name="config" xsi:type="array">' . PHP_EOL;
+//                $contents .= '                    <item name="source" xsi:type="string">block</item>' . PHP_EOL;
+//                $contents .= '                    <item name="default" xsi:type="number">0</item>' . PHP_EOL;
+//                $contents .= '                </item>' . PHP_EOL;
+//                $contents .= '            </argument>' . PHP_EOL;
+//                $contents .= '            <settings>' . PHP_EOL;
+//                $contents .= '                <validation>' . PHP_EOL;
+//                $contents .= '                    <rule name="required-entry" xsi:type="boolean">true</rule>' . PHP_EOL;
+//                $contents .= '                </validation>' . PHP_EOL;
+//                $contents .= '                <dataType>int</dataType>' . PHP_EOL;
+//                $contents .= '                <tooltip>' . PHP_EOL;
+//                $contents .= '                    <link>https://docs.magento.com/m2/ce/user_guide/configuration/scope.html</link>' . PHP_EOL;
+//                $contents .= '                    <description>What is this?</description>' . PHP_EOL;
+//                $contents .= '                </tooltip>' . PHP_EOL;
+//                $contents .= '                <label translate="true">Store View</label>' . PHP_EOL;
+//                $contents .= '                <dataScope>store_id</dataScope>' . PHP_EOL;
+//                $contents .= '            </settings>' . PHP_EOL;
+//                $contents .= '            <formElements>' . PHP_EOL;
+//                $contents .= '                <select>' . PHP_EOL;
+//                $contents .= '                    <settings>' . PHP_EOL;
+//                $contents .= '                        <options class="Magento\\Cms\\Ui\\Component\\Listing\\Column\\Cms\\Options"/>' . PHP_EOL;
+//                $contents .= '                    </settings>' . PHP_EOL;
+//                $contents .= '                </select>' . PHP_EOL;
+//                $contents .= '            </formElements>' . PHP_EOL;
+//                $contents .= '        </field>' . PHP_EOL;
+//                $contents .= '    </fieldset>' . PHP_EOL;
+//            } else {
+                $storeContent = '        <field name="store_id" formElement="select">' . PHP_EOL;
+                $storeContent .= '            <argument name="data" xsi:type="array">' . PHP_EOL;
+                $storeContent .= '                <item name="config" xsi:type="array">' . PHP_EOL;
+                $storeContent .= '                    <item name="source" xsi:type="string">block</item>' . PHP_EOL;
+                $storeContent .= '                    <item name="default" xsi:type="number">0</item>' . PHP_EOL;
+                $storeContent .= '                </item>' . PHP_EOL;
+                $storeContent .= '            </argument>' . PHP_EOL;
+                $storeContent .= '            <settings>' . PHP_EOL;
+                $storeContent .= '                <validation>' . PHP_EOL;
+                $storeContent .= '                    <rule name="required-entry" xsi:type="boolean">true</rule>' . PHP_EOL;
+                $storeContent .= '                </validation>' . PHP_EOL;
+                $storeContent .= '                <dataType>int</dataType>' . PHP_EOL;
+                $storeContent .= '                <tooltip>' . PHP_EOL;
+                $storeContent .= '                    <link>https://docs.magento.com/m2/ce/user_guide/configuration/scope.html</link>' . PHP_EOL;
+                $storeContent .= '                    <description>What is this?</description>' . PHP_EOL;
+                $storeContent .= '                </tooltip>' . PHP_EOL;
+                $storeContent .= '                <label translate="true">Store View</label>' . PHP_EOL;
+                $storeContent .= '                <dataScope>store_id</dataScope>' . PHP_EOL;
+                $storeContent .= '            </settings>' . PHP_EOL;
+                $storeContent .= '            <formElements>' . PHP_EOL;
+                $storeContent .= '                <select>' . PHP_EOL;
+                $storeContent .= '                    <settings>' . PHP_EOL;
+                $storeContent .= '                        <options class="Magento\\Cms\\Ui\\Component\\Listing\\Column\\Cms\\Options"/>' . PHP_EOL;
+                $storeContent .= '                    </settings>' . PHP_EOL;
+                $storeContent .= '                </select>' . PHP_EOL;
+                $storeContent .= '            </formElements>' . PHP_EOL;
+                $storeContent .= '        </field>' . PHP_EOL;
+                $storeColumn = [];
+                $storeColumn['backend_type'] = 'store_id';
+                $storeColumn['backend_fieldset'] = $fieldSets[$firstKey];
+                $storeColumn['store_structure'] = $storeContent;
+                array_push($dbColumns, $storeColumn);
+//            }
+            foreach ($fieldSets as $fieldSet) {
+                $contents .= '    <fieldset name="' . $fieldSet . '"><!--New fieldsets must be added at: ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Ui/Component/DataProvider.php-->' . PHP_EOL;
+                $contents .= '        <argument name="data" xsi:type="array">' . PHP_EOL;
+                $contents .= '            <item name="config" xsi:type="array">' . PHP_EOL;
+                $contents .= '                <item name="label" xsi:type="string" translate="true">' . $fieldSet . '</item>' . PHP_EOL;
+                $contents .= '            </item>' . PHP_EOL;
+                $contents .= '        </argument>' . PHP_EOL;
+                foreach ($dbColumns as $column) {
+                    if ($column['backend_fieldset'] === $fieldSet) {
+                        if ($column['backend_type'] === 'text') {
+                            $contents .= $this->textType->textTypeField($column['name'], $column['backend_label']);
+                        }
+                        if ($column['backend_type'] === 'select') {
+                            $contents .= $this->selectType->selectTypeField($column['name'], $column['backend_label'], $column['backend_options']);
+                        }
+                        if ($column['backend_type'] === 'multiselect') {
+                            $contents .= $this->multiSelectType->multiSelectTypeField($column['name'], $column['backend_label'], $column['backend_options']);
+                        }
+                        if ($column['backend_type'] === 'checkbox') {
+                            $contents .= $this->checkboxType->checkboxTypeField($column['name'], $column['backend_label']);
+                        }
+                        if ($column['backend_type'] === 'imageUploader') {
+                            $contents .= $this->imageUploaderType->imageUploaderTypeField($column['name'], $column['backend_label']);
+                        }
+                        if ($column['backend_type'] === 'textarea') {
+                            $contents .= $this->textAreaType->textAreaTypeField($column['name'], $column['backend_label']);
+                        }
+                        if ($column['backend_type'] === 'color-picker') {
+                            $contents .= $this->colorPickerType->colorPickerTypeField($column['name'], $column['backend_label']);
+                        }
+                        if ($column['backend_type'] === 'wysiwyg') {
+                            $contents .= $this->wysiwygType->wysiwygTypeField($column['name'], $column['backend_label']);
+                        }
+                        if ($column['backend_type'] === 'fileUploader') {
+                            $contents .= $this->fileUploaderType->fileUploaderTypeField($column['name'], $column['backend_label']);
+                        }
+                        if ($column['backend_type'] === 'dynamicRow') {
+                            $contents .= $this->dynamicRowType->dynamicRowTypeField($column['name'], $column['backend_label'], $column['backend_dynamic_rows']);
+                        }
+                        if ($column['backend_type'] === 'store_id') {
+                            $contents .= $column['store_structure'];
+                        }
+                    }
+                }
+                $contents .= '    </fieldset>' . PHP_EOL;
+            }
+            $contents .= '</form>' . PHP_EOL;
+            if ($this->filesystemIo->write($formFile, $contents)) {
                 return true;
             }
             return false;

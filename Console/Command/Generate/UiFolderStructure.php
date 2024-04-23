@@ -71,12 +71,11 @@ class UiFolderStructure
      * @param $vendorNamespaceArr
      * @param $entityName
      * @param $dbColumns
-     * @param $dbName
      * @param $frontName
+     * @param $uiFormStyle
      * @return mixed
-     * @throws \Magento\Framework\Exception\FileSystemException
      */
-    public function generateUiFolderFiles($vendorNamespaceArr, $entityName, $dbColumns, $frontName)
+    public function generateUiFolderFiles($vendorNamespaceArr, $entityName, $dbColumns, $frontName, $uiFormStyle)
     {
         $appFolder = $this->filesystem->getDirectoryWrite(\Magento\Framework\App\Filesystem\DirectoryList::APP);
         $appFolderPath = $appFolder->getAbsolutePath();
@@ -98,7 +97,7 @@ class UiFolderStructure
             $result['message'] = 'Could not generate DataProvider.php file';
             return $result;
         }
-        if (!$this->generateModelDataProviderFile($vendorNamespaceArr, $appFolderPath, $entityName, $dbColumns)) {
+        if (!$this->generateModelDataProviderFile($vendorNamespaceArr, $appFolderPath, $entityName, $dbColumns, $uiFormStyle)) {
             $result['success'] = false;
             $result['message'] = 'Could not generate Model DataProvider.php file';
             return $result;
@@ -307,7 +306,7 @@ class UiFolderStructure
         }
     }
 
-    public function generateModelDataProviderFile($vendorNamespaceArr, $appFolderPath, $entityName, $dbColumns)
+    public function generateModelDataProviderFile($vendorNamespaceArr, $appFolderPath, $entityName, $dbColumns, $uiFormStyle)
     {
         $componentFolder = $appFolderPath . 'code' . '/' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Model/Block';
         $this->filesystemIo->checkAndCreateFolder($componentFolder);
@@ -321,7 +320,7 @@ class UiFolderStructure
             $contents .= 'namespace ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\Model\\Block;' . PHP_EOL;
             $contents .= PHP_EOL;
             $contents .= 'use Magento\\Framework\\App\\Request\\DataPersistorInterface;' . PHP_EOL;
-            $contents .= 'use Magento\\Framework\\Serialize\\Serializer\\Serialize;' . PHP_EOL;
+            $contents .= 'use Magento\\Framework\\Serialize\\SerializerInterface;' . PHP_EOL;
             $contents .= 'use Magento\\Ui\\DataProvider\\Modifier\\PoolInterface;' . PHP_EOL;
             $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\Model\\ResourceModel\\' . $entityName . '\\CollectionFactory;' . PHP_EOL;
             $contents .= 'use ' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\Model\\ResourceModel\\' . $entityName . '\\Collection;' . PHP_EOL;
@@ -334,7 +333,7 @@ class UiFolderStructure
             $contents .= '    protected $collection;' . PHP_EOL;
             $contents .= '    protected DataPersistorInterface $dataPersistor;' . PHP_EOL;
             $contents .= '    protected array $loadedData;' . PHP_EOL;
-            $contents .= '    private Serialize $json;' . PHP_EOL;
+            $contents .= '    private SerializerInterface $json;' . PHP_EOL;
             $contents .= PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
             $contents .= '     * Constructor' . PHP_EOL;
@@ -344,7 +343,7 @@ class UiFolderStructure
             $contents .= '     * @param string $requestFieldName' . PHP_EOL;
             $contents .= '     * @param CollectionFactory $' . $lowerCamelCaseEntityName . 'CollectionFactory' . PHP_EOL;
             $contents .= '     * @param DataPersistorInterface $dataPersistor' . PHP_EOL;
-            $contents .= '     * @param Serialize $json' . PHP_EOL;
+            $contents .= '     * @param SerializerInterface $json' . PHP_EOL;
             $contents .= '     * @param array $meta' . PHP_EOL;
             $contents .= '     * @param array $data' . PHP_EOL;
             $contents .= '     * @param PoolInterface|null $pool' . PHP_EOL;
@@ -355,7 +354,7 @@ class UiFolderStructure
             $contents .= '        $requestFieldName,' . PHP_EOL;
             $contents .= '        CollectionFactory $' . $lowerCamelCaseEntityName . 'CollectionFactory,' . PHP_EOL;
             $contents .= '        DataPersistorInterface $dataPersistor,' . PHP_EOL;
-            $contents .= '        Serialize $json,' . PHP_EOL;
+            $contents .= '        SerializerInterface $json,' . PHP_EOL;
             $contents .= '        array $meta = [],' . PHP_EOL;
             $contents .= '        array $data = [],' . PHP_EOL;
             $contents .= '        PoolInterface $pool = null' . PHP_EOL;
@@ -365,7 +364,7 @@ class UiFolderStructure
             $contents .= '        $this->dataPersistor = $dataPersistor;' . PHP_EOL;
             $contents .= '        $this->json = $json;' . PHP_EOL;
             $contents .= '    }' . PHP_EOL;
-            $contents .=' ' . PHP_EOL;
+            $contents .= PHP_EOL;
             $contents .= '    /**' . PHP_EOL;
             $contents .= '     * @return array' . PHP_EOL;
             $contents .= '     */' . PHP_EOL;
@@ -378,17 +377,10 @@ class UiFolderStructure
             $contents .= '        $items = $this->collection->getItems();' . PHP_EOL;
             $contents .= PHP_EOL;
             $contents .= '        foreach ($items as $item) {' . PHP_EOL;
-            //sort columns by fieldset, just to make it more organized
-            usort($dbColumns, function ($a, $b) { return $a['backend_fieldset'] <=> $b['backend_fieldset']; });
-            $firstKey = array_key_first($dbColumns);
-            $contents .= '            $this->loadedData[$item->getId()][\'' . $dbColumns[$firstKey]['backend_fieldset'] . '\'][\'id\'] = $item->getId();' . PHP_EOL;
-            $contents .= '            $this->loadedData[$item->getId()][\'' . $dbColumns[$firstKey]['backend_fieldset'] . '\'][\'store_id\'] = $item->getData()[\'store_id\'];' . PHP_EOL;
-            foreach ($dbColumns as $column) {
-                if ($column['backend_type'] === 'imageUploader' || $column['backend_type'] === 'fileUploader' || $column['backend_type'] === 'dynamicRow') {
-                    $contents .= '            $this->loadedData[$item->getId()][\'' . $column['backend_fieldset'] . '\'][\'' . $column['name'] . '\'] = $this->json->unserialize($item->getData()[\'' . $column['name'] . '\']);' . PHP_EOL;
-                } else {
-                    $contents .= '            $this->loadedData[$item->getId()][\'' . $column['backend_fieldset'] . '\'][\'' . $column['name'] . '\'] = $item->getData()[\'' . $column['name'] . '\'];' . PHP_EOL;
-                }
+            if ($uiFormStyle === '2') {
+                $contents .= $this->getSeparateFieldsetProvider($dbColumns);
+            } else {
+                $contents .= $this->getSingleFieldsetProvider($dbColumns);
             }
             $contents .= '        }' . PHP_EOL;
             $contents .= PHP_EOL;
@@ -411,5 +403,49 @@ class UiFolderStructure
         } else {
             return true;
         }
+    }
+
+    private function getSeparateFieldsetProvider($dbColumns)
+    {
+        $contents = '';
+        //sort columns by fieldset, just to make it more organized
+        usort($dbColumns, function ($a, $b) { return $a['backend_fieldset'] <=> $b['backend_fieldset']; });
+        $firstKey = array_key_first($dbColumns);
+        $contents .= '            $this->loadedData[$item->getId()][\'' . $dbColumns[$firstKey]['backend_fieldset'] . '\'][\'id\'] = $item->getId();' . PHP_EOL;
+        $contents .= '            $this->loadedData[$item->getId()][\'' . $dbColumns[$firstKey]['backend_fieldset'] . '\'][\'store_id\'] = $item->getData()[\'store_id\'];' . PHP_EOL;
+        foreach ($dbColumns as $column) {
+            if ($column['backend_type'] === 'imageUploader' || $column['backend_type'] === 'fileUploader' || $column['backend_type'] === 'dynamicRow') {
+                $contents .= '            $this->loadedData[$item->getId()][\'' . $column['backend_fieldset'] . '\'][\'' . $column['name'] . '\'] = $this->json->unserialize($item->getData()[\'' . $column['name'] . '\']);' . PHP_EOL;
+            } else {
+                $contents .= '            $this->loadedData[$item->getId()][\'' . $column['backend_fieldset'] . '\'][\'' . $column['name'] . '\'] = $item->getData()[\'' . $column['name'] . '\'];' . PHP_EOL;
+            }
+        }
+        return $contents;
+    }
+
+    private function getSingleFieldsetProvider($dbColumns)
+    {
+        $serializedColumns = [];
+        foreach ($dbColumns as $column) {
+            if (in_array($column['backend_type'], ['imageUploader', 'fileUploader', 'dynamicRow'])) {
+                $serializedColumns[] = "'" . $column['name'] . "'";
+            }
+        }
+        $contents = '             foreach ($item->getData() as $index => $value) {' . PHP_EOL;
+        if (sizeof($serializedColumns)) {
+            if (sizeof($serializedColumns) > 1) {
+                $contents .= '                 if (in_array($index, [' . implode(', ', $serializedColumns) . '])) {' . PHP_EOL;
+            } else {
+                $contents .= '                 if ($index === ' . $serializedColumns[0] . ') {' . PHP_EOL;
+            }
+            $contents .= '                    $this->loadedData[$item->getId()][$index] = $this->json->unserialize($value);' . PHP_EOL;
+            $contents .= '                 } else {' . PHP_EOL;
+            $contents .= '                    $this->loadedData[$item->getId()][$index] = $value;' . PHP_EOL;
+            $contents .= '                 }' . PHP_EOL;
+        } else {
+            $contents .= '                 $this->loadedData[$item->getId()][$index] = $value;' . PHP_EOL;
+        }
+        $contents .= '            }' . PHP_EOL;
+        return $contents;
     }
 }

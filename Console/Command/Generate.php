@@ -171,10 +171,15 @@ class Generate extends Command
         $dbInfo = $this->dbSchemaStructure($input, $output, $module);
         $entityName = $this->createApiAndModelFiles($input, $output, $module, $dbInfo);
         $this->createDiXml($output, $module, $dbInfo, $entityName);
-        $frontName = $this->createBackendControllers($input, $output, $module, $entityName, $dbInfo);
+
+        $helper = $this->questionHelper();
+        $uiFormQuestion = new Question('Should the form have 1 or 2 Columns? (1 or 2)' . PHP_EOL, '2');
+        $uiFormStyle = $helper->ask($input, $output, $uiFormQuestion);
+
+        $frontName = $this->createBackendControllers($input, $output, $module, $entityName, $dbInfo, $uiFormStyle);
         $this->createBackendBlocks($output, $module, $entityName, $dbInfo, $frontName);
-        $this->createUiFiles($output, $module, $entityName, $dbInfo, $frontName);
-        $this->generateLayoutAndComponentFiles($output, $module, $entityName, $dbInfo, $frontName, $input);
+        $this->createUiFiles($output, $module, $entityName, $dbInfo, $frontName, $uiFormStyle);
+        $this->generateLayoutAndComponentFiles($output, $module, $entityName, $dbInfo, $frontName, $input, $uiFormStyle);
 
         foreach ($this->outputsArr as $msg) {
             $output->writeln($msg);
@@ -441,10 +446,10 @@ class Generate extends Command
      * @param $module
      * @param $entityName
      * @param $dbInfo
+     * @param $uiFormStyle
      * @return mixed
-     * @throws \Magento\Framework\Exception\FileSystemException
      */
-    public function createBackendControllers($input, $output, $module, $entityName, $dbInfo)
+    public function createBackendControllers($input, $output, $module, $entityName, $dbInfo, $uiFormStyle)
     {
         $vendorNamespaceArr = explode('_', $module);
         $helper = $this->questionHelper();
@@ -458,7 +463,7 @@ class Generate extends Command
         $menuPosition = $helper->ask($input, $output, $menuPositionQuestion);
         $dbColumns = $dbInfo['columns'];
         $dbName = $dbInfo['db_name'];
-        $resp = $this->backendControllersStructure->generateBackendRoutesAndControllers($vendorNamespaceArr, $entityName, $dbColumns, $dbName, $frontName, $menuPosition);
+        $resp = $this->backendControllersStructure->generateBackendRoutesAndControllers($vendorNamespaceArr, $entityName, $dbColumns, $dbName, $frontName, $menuPosition, $uiFormStyle);
         if ($resp['success']) {
             array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/etc/routes.xml');
             array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/etc/menu.xml');
@@ -508,13 +513,14 @@ class Generate extends Command
      * @param $entityName
      * @param $dbInfo
      * @param $frontName
+     * @param $uiFormStyle
      * @throws \Magento\Framework\Exception\FileSystemException
      */
-    public function createUiFiles($output, $module, $entityName, $dbInfo, $frontName)
+    public function createUiFiles($output, $module, $entityName, $dbInfo, $frontName, $uiFormStyle)
     {
         $vendorNamespaceArr = explode('_', $module);
         $dbColumns = $dbInfo['columns'];
-        $resp = $this->uiFolderStructure->generateUiFolderFiles($vendorNamespaceArr, $entityName, $dbColumns, $frontName);
+        $resp = $this->uiFolderStructure->generateUiFolderFiles($vendorNamespaceArr, $entityName, $dbColumns, $frontName, $uiFormStyle);
         if ($resp['success']) {
             array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Ui/Component/Listing/Column/Actions.php');
             array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Ui/Component/DataProvider.php');
@@ -531,13 +537,10 @@ class Generate extends Command
      * @param $dbInfo
      * @param $frontName
      * @param $input
+     * @param $uiFormStyle
      */
-    public function generateLayoutAndComponentFiles($output, $module, $entityName, $dbInfo, $frontName, $input)
+    public function generateLayoutAndComponentFiles($output, $module, $entityName, $dbInfo, $frontName, $input, $uiFormStyle)
     {
-        $helper = $this->questionHelper();
-        $uiFormQuestion = new Question('Should the form have 1 or 2 Columns? (1 or 2)' . PHP_EOL);
-        $uiFormStyle = $helper->ask($input, $output, $uiFormQuestion);
-
         $snakeCaseEntityName = $this->helper->convertToSnakeCase($entityName);
         $vendorNamespaceArr = explode('_', $module);
         $dbColumns = $dbInfo['columns'];
