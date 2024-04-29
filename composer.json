@@ -16,7 +16,7 @@
     "AFL-3.0"
   ],
   "require": {
-    "php": ">=5.5",
+    "php": ">=7.0",
     "magento/magento-composer-installer": "*",
     "magento/framework": "*"
   },

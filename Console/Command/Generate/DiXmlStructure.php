@@ -73,6 +73,7 @@ class DiXmlStructure
         $diFile = $folder . '/' . 'di.xml';
         if (!$this->filesystemIo->fileExists($diFile)) {
             $contents = '<?xml version="1.0"?>' . PHP_EOL;
+            $this->helper->getXmlSignature('di.xml');
             $contents .= '<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">' . PHP_EOL;
             $contents .= '    <preference for="' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Api\\Data' . '\\' . $entityName . 'Interface" type="' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . $entityName . '"/>' . PHP_EOL;
             $contents .= '    <preference for="' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Api' . '\\' . $entityName . 'RepositoryInterface" type="' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . $entityName . 'Repository"/>' . PHP_EOL;
@@ -100,6 +101,28 @@ class DiXmlStructure
             $contents .= '                    <item name="identifierField" xsi:type="const">' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Api' . '\\' . 'Data' . '\\' . $entityName . 'Interface::' . strtoupper($this->helper->convertToSnakeCase($entityName)) . '_ID' . '</item>' . PHP_EOL;
             $contents .= '                </item>' . PHP_EOL;
             $contents .= '            </argument>' . PHP_EOL;
+            $contents .= '        </arguments>' . PHP_EOL;
+            $contents .= '    </type>' . PHP_EOL;
+            $contents .= '    <type name="' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\Model\\ResourceModel\\' . $entityName . '\\Grid\\Collection">' . PHP_EOL;
+            $contents .= '        <arguments>' . PHP_EOL;
+            $contents .= '            <argument name="mainTable" xsi:type="const">' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Api' . '\\' . 'Data' . '\\' . $entityName . 'Interface::' . strtoupper($this->helper->convertToSnakeCase($entityName)) . '_TABLE' . '</argument>' . PHP_EOL;
+            $contents .= '            <argument name="eventPrefix" xsi:type="const">' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Api' . '\\' . 'Data' . '\\' . $entityName . 'Interface::' . strtoupper($this->helper->convertToSnakeCase($entityName)) . '_EVENT_PREFIX' . '</argument>' . PHP_EOL;
+            $contents .= '            <argument name="eventObject" xsi:type="const">' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Api' . '\\' . 'Data' . '\\' . $entityName . 'Interface::' . strtoupper($this->helper->convertToSnakeCase($entityName)) . '_EVENT_OBJECT' . '</argument>' . PHP_EOL;
+            $contents .= '            <argument name="resourceModel" xsi:type="string">' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\' . 'Model' . '\\' . 'ResourceModel' . '\\' . $entityName . '</argument>' . PHP_EOL;
+            $contents .= '        </arguments>' . PHP_EOL;
+            $contents .= '    </type>' . PHP_EOL;
+            $contents .= '    <virtualType name="' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\Model\\Api\\SearchCriteria\\' . $entityName . 'CollectionProcessor" type="Magento\\Framework\\Api\\SearchCriteria\\CollectionProcessor">' . PHP_EOL;
+            $contents .= '        <arguments>' . PHP_EOL;
+            $contents .= '            <argument name="processors" xsi:type="array">' . PHP_EOL;
+            $contents .= '                <item name="filters" xsi:type="object">Magento\\Framework\\Api\\SearchCriteria\\CollectionProcessor\\FilterProcessor</item>' . PHP_EOL;
+            $contents .= '                <item name="sorting" xsi:type="object">Magento\\Framework\\Api\\SearchCriteria\\CollectionProcessor\\SortingProcessor</item>' . PHP_EOL;
+            $contents .= '                <item name="pagination" xsi:type="object">Magento\\Framework\\Api\\SearchCriteria\\CollectionProcessor\\PaginationProcessor</item>' . PHP_EOL;
+            $contents .= '            </argument>' . PHP_EOL;
+            $contents .= '        </arguments>' . PHP_EOL;
+            $contents .= '    </virtualType>' . PHP_EOL;
+            $contents .= '    <type name="' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\Model\\' . $entityName . 'Repository">' . PHP_EOL;
+            $contents .= '        <arguments>' . PHP_EOL;
+            $contents .= '            <argument name="collectionProcessor" xsi:type="object">' . $vendorNamespaceArr[0] . '\\' . $vendorNamespaceArr[1] . '\\Model\\Api\\SearchCriteria\\' . $entityName . 'CollectionProcessor</argument>' . PHP_EOL;
             $contents .= '        </arguments>' . PHP_EOL;
             $contents .= '    </type>' . PHP_EOL;
             $contents .= '</config>' . PHP_EOL;

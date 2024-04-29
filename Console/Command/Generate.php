@@ -99,6 +99,19 @@ class Generate extends Command
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $helper = $this->questionHelper();
+
+        $output->writeln("Before start, we need to ask a couple questions.");
+
+        $askName = new Question('Select a <fg=green>username</> to be used for the signatures' . PHP_EOL, '');
+        $user = $helper->ask($input, $output, $askName);
+        $this->helper->setUserName($user);
+
+        $askTeam = new Question('Select a <fg=green>team name</> to be used for the signatures' . PHP_EOL, '');
+        $team = $helper->ask($input, $output, $askTeam);
+        $this->helper->setTeam($team);
+
+        $this->helper->setDate(date("j/n/Y"));
+
         //install only initial module
         if ($input->getOption('module-only')) {
             $this->initialModuleStructure($input, $output);
@@ -158,10 +171,15 @@ class Generate extends Command
         $dbInfo = $this->dbSchemaStructure($input, $output, $module);
         $entityName = $this->createApiAndModelFiles($input, $output, $module, $dbInfo);
         $this->createDiXml($output, $module, $dbInfo, $entityName);
-        $frontName = $this->createBackendControllers($input, $output, $module, $entityName, $dbInfo);
+
+        $helper = $this->questionHelper();
+        $uiFormQuestion = new Question('Should the form have 1 or 2 Columns? (1 or 2)' . PHP_EOL, '2');
+        $uiFormStyle = $helper->ask($input, $output, $uiFormQuestion);
+
+        $frontName = $this->createBackendControllers($input, $output, $module, $entityName, $dbInfo, $uiFormStyle);
         $this->createBackendBlocks($output, $module, $entityName, $dbInfo, $frontName);
-        $this->createUiFiles($output, $module, $entityName, $dbInfo, $frontName);
-        $this->generateLayoutAndComponentFiles($output, $module, $entityName, $dbInfo, $frontName, $input);
+        $this->createUiFiles($output, $module, $entityName, $dbInfo, $frontName, $uiFormStyle);
+        $this->generateLayoutAndComponentFiles($output, $module, $entityName, $dbInfo, $frontName, $input, $uiFormStyle);
 
         foreach ($this->outputsArr as $msg) {
             $output->writeln($msg);
@@ -190,6 +208,7 @@ class Generate extends Command
             $sequenceModulesAnswer = $helper->ask($input, $output, $sequenceModulesToCreate);
         }
         if ($moduleToCreateAnswer) {
+            $this->helper->setVendorNamespace($moduleToCreateAnswer);
             $output->writeln('Generating necessary Magento 2 initial files...');
             $resp = $this->initialModuleStructure->createInitialModuleStructure($moduleToCreateAnswer, $sequenceModulesAnswer);
             $moduleArr = explode('_', $moduleToCreateAnswer);
@@ -249,11 +268,21 @@ class Generate extends Command
                     $columnLengthAnswer = $helper->ask($input, $output, $columnLength);
                     $column['length'] = $columnLengthAnswer;
                 } elseif ($columnTypeAnswer === 'int' || $columnTypeAnswer === 'smallint' || $columnTypeAnswer === 'decimal') {
-                    $columnUnsigned = new Question('<fg=green>Unsigned</> (true/false) - press enter to skip:' . PHP_EOL, 'n');
+                    $columnUnsigned = new Question('<fg=green>Unsigned</> (true/false) - press enter to skip:' . PHP_EOL, 'false');
                     $columnUnsignedAnswer = $helper->ask($input, $output, $columnUnsigned);
-                    if ($columnUnsignedAnswer !== 'n') {
+                    if (in_array($columnUnsignedAnswer, ['true', 'false'])) {
                         $column['unsigned'] = $columnUnsignedAnswer;
                     }
+                }
+
+                if ($columnTypeAnswer === 'decimal') {
+                    $columnScale = new Question('<fg=green>Scale</> (Default: 6) - press enter to skip:' . PHP_EOL, '6');
+                    $columnScaleAnswer = $helper->ask($input, $output, $columnScale);
+                    $column['scale'] = $columnScaleAnswer;
+
+                    $columnPrecision = new Question('<fg=green>Precision</> (Default: 20) - press enter to skip:' . PHP_EOL, '20');
+                    $columnPrecision = $helper->ask($input, $output, $columnPrecision);
+                    $column['precision'] = $columnPrecision;
                 }
                 $columnDefault = new Question('Add <fg=green>default value</> (press enter to skip):' . PHP_EOL, 'n');
                 $columnDefaultAnswer = $helper->ask($input, $output, $columnDefault);
@@ -417,22 +446,24 @@ class Generate extends Command
      * @param $module
      * @param $entityName
      * @param $dbInfo
+     * @param $uiFormStyle
      * @return mixed
-     * @throws \Magento\Framework\Exception\FileSystemException
      */
-    public function createBackendControllers($input, $output, $module, $entityName, $dbInfo)
+    public function createBackendControllers($input, $output, $module, $entityName, $dbInfo, $uiFormStyle)
     {
         $vendorNamespaceArr = explode('_', $module);
         $helper = $this->questionHelper();
-        $frontNameQuestion = new Question('Define the backend <fg=green>router frontName</>: (no dashes or spaces allowed)' . PHP_EOL, 'demo-entity-frontend');
-        $frontName = $helper->ask($input, $output, $frontNameQuestion);
+        /*$frontNameQuestion = new Question('Define the backend <fg=green>router frontName</>: (no dashes or spaces allowed)' . PHP_EOL, 'demo-entity-frontend');
+        $frontName = $helper->ask($input, $output, $frontNameQuestion);*/
+        $frontName = $this->helper->convertToSnakeCase($entityName);;
+
         $menuPositionQuestion = new Question('Define where on the backend it should appear:' . PHP_EOL .
             'Examples: menu_root | Magento_Backend::content | Magento_Customer::customer | Magento_Catalog::catalog | Magento_Catalog::catalog_products | ' . PHP_EOL .
             'Magento_Catalog::catalog_categories | Magento_Sales::sales | Magento_Sales::sales_order | Magento_Sales::sales_shipment ' . PHP_EOL, 'menu_root');
         $menuPosition = $helper->ask($input, $output, $menuPositionQuestion);
         $dbColumns = $dbInfo['columns'];
         $dbName = $dbInfo['db_name'];
-        $resp = $this->backendControllersStructure->generateBackendRoutesAndControllers($vendorNamespaceArr, $entityName, $dbColumns, $dbName, $frontName, $menuPosition);
+        $resp = $this->backendControllersStructure->generateBackendRoutesAndControllers($vendorNamespaceArr, $entityName, $dbColumns, $dbName, $frontName, $menuPosition, $uiFormStyle);
         if ($resp['success']) {
             array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/etc/routes.xml');
             array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/etc/menu.xml');
@@ -482,16 +513,18 @@ class Generate extends Command
      * @param $entityName
      * @param $dbInfo
      * @param $frontName
+     * @param $uiFormStyle
      * @throws \Magento\Framework\Exception\FileSystemException
      */
-    public function createUiFiles($output, $module, $entityName, $dbInfo, $frontName)
+    public function createUiFiles($output, $module, $entityName, $dbInfo, $frontName, $uiFormStyle)
     {
         $vendorNamespaceArr = explode('_', $module);
         $dbColumns = $dbInfo['columns'];
-        $resp = $this->uiFolderStructure->generateUiFolderFiles($vendorNamespaceArr, $entityName, $dbColumns, $frontName);
+        $resp = $this->uiFolderStructure->generateUiFolderFiles($vendorNamespaceArr, $entityName, $dbColumns, $frontName, $uiFormStyle);
         if ($resp['success']) {
             array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Ui/Component/Listing/Column/Actions.php');
             array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Ui/Component/DataProvider.php');
+            array_push($this->outputsArr, '<fg=green>Generated:</> ' . $vendorNamespaceArr[0] . '/' . $vendorNamespaceArr[1] . '/Model/Block/DataProvider.php');
         } else {
             $output->writeln($resp['message']);
         }
@@ -504,13 +537,10 @@ class Generate extends Command
      * @param $dbInfo
      * @param $frontName
      * @param $input
+     * @param $uiFormStyle
      */
-    public function generateLayoutAndComponentFiles($output, $module, $entityName, $dbInfo, $frontName, $input)
+    public function generateLayoutAndComponentFiles($output, $module, $entityName, $dbInfo, $frontName, $input, $uiFormStyle)
     {
-        $helper = $this->questionHelper();
-        $uiFormQuestion = new Question('Should the form have 1 or 2 Columns? (1 or 2)' . PHP_EOL);
-        $uiFormStyle = $helper->ask($input, $output, $uiFormQuestion);
-
         $snakeCaseEntityName = $this->helper->convertToSnakeCase($entityName);
         $vendorNamespaceArr = explode('_', $module);
         $dbColumns = $dbInfo['columns'];
